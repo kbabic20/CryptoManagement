@@ -39,6 +39,7 @@
     <Reference Include="HtmlAgilityPack, Version=1.11.34.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlAgilityPack.1.11.34\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -89,6 +90,7 @@
   <ItemGroup>
     <Compile Include="CoinGeckoAPI.cs" />
     <Compile Include="EntryModel.cs" />
+    <Compile Include="ExtractDataFromCSV.cs" />
     <Compile Include="HandleExcel.cs" />
     <Compile Include="WebCrawler.cs" />
     <Compile Include="Form1.cs">

@@ -58,3 +58,18 @@ D:\OneDrive\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Programmieren\I
 D:\OneDrive\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Programmieren\InvestmentManagementCrypto_aktuell\InvestmentManagement\obj\Debug\InvestmentManagement.csproj.CopyComplete
 D:\OneDrive\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Programmieren\InvestmentManagementCrypto_aktuell\InvestmentManagement\obj\Debug\InvestmentManagement.exe
 D:\OneDrive\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Programmieren\InvestmentManagementCrypto_aktuell\InvestmentManagement\obj\Debug\InvestmentManagement.pdb
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\bin\Debug\InvestmentManagement.exe.config
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\bin\Debug\InvestmentManagement.exe
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\bin\Debug\InvestmentManagement.pdb
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\bin\Debug\HtmlAgilityPack.dll
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\bin\Debug\HtmlAgilityPack.pdb
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\bin\Debug\HtmlAgilityPack.xml
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\obj\Debug\InvestmentManagement.csproj.AssemblyReference.cache
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\obj\Debug\InvestmentManagement.csproj.ResolveComReference.cache
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\obj\Debug\InvestmentManagement.Form1.resources
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\obj\Debug\InvestmentManagement.Properties.Resources.resources
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\obj\Debug\InvestmentManagement.csproj.GenerateResource.cache
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\obj\Debug\InvestmentManagement.csproj.CoreCompileInputs.cache
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\obj\Debug\InvestmentManagement.csproj.CopyComplete
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\obj\Debug\InvestmentManagement.exe
+D:\_Meine Projekte\CryptoManagement\InvestmentManagementCrypto\InvestmentManagement\obj\Debug\InvestmentManagement.pdb
