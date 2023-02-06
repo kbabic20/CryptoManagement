@@ -21,9 +21,9 @@ namespace InvestmentManagement
     WebCrawler webCrawler;
     HandleExcel handleExcel;
     CoinGeckoAPI coinGeckoAPI;
-    string _excelFilePath = "D:\\OneDrive\\OneDrive - rfh-campus.de\\Finanzen\\Investment\\Cryptos\\Crypto Investment_aktuell.xlsx";// "C:\\Users\\Kasim\\OneDrive - rfh-campus.de\\Finanzen\\Investment\\Cryptos\\Crypto Investment.xlsx";
-    string csvPath = @"D:\OneDrive\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\Export Order History-2022-01-29 18_09_36.csv";
-    string testExcelPath = @"D:\OneDrive\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\test.xlsx";
+    string _excelFilePath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Crypto Investment_aktuell.xlsx";// "C:\\Users\\Kasim\\OneDrive - rfh-campus.de\\Finanzen\\Investment\\Cryptos\\Crypto Investment.xlsx";
+    string csvPath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\Export Order History-2022-01-29 18_09_36.csv";
+    string testExcelPath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\test.xlsx";
     public Form1()
     {
       InitializeComponent();

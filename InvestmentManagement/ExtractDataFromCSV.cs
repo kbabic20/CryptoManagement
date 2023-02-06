@@ -16,7 +16,7 @@ namespace InvestmentManagement
       using (TextFieldParser parser = new TextFieldParser(filePath))
       {
         parser.TextFieldType = FieldType.Delimited;
-        parser.SetDelimiters(",",";");
+        parser.SetDelimiters(";");
 
         string[] headers = parser.ReadFields();
         foreach (string header in headers)
