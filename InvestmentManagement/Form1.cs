@@ -21,6 +21,7 @@ namespace InvestmentManagement
     WebCrawler webCrawler;
     HandleExcel handleExcel;
     CoinGeckoAPI coinGeckoAPI;
+    CryptoKauf CryptoKauf;
     string _excelFilePath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Crypto Investment_aktuell.xlsx";// "C:\\Users\\Kasim\\OneDrive - rfh-campus.de\\Finanzen\\Investment\\Cryptos\\Crypto Investment.xlsx";
     string csvPath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\Export Order History-2022-01-29 18_09_36.csv";
     string testExcelPath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\test.xlsx";
@@ -29,8 +30,8 @@ namespace InvestmentManagement
       InitializeComponent();
       //webCrawler = new WebCrawler();
       handleExcel = new HandleExcel(_excelFilePath);
-      ExtractDataFromCSV.SaveDataToExcel( ExtractDataFromCSV.GetDataFromCSV(csvPath), testExcelPath);
-
+     // ExtractDataFromCSV.SaveDataToExcel( ExtractDataFromCSV.GetDataFromCSV(csvPath), testExcelPath);
+      CryptoKauf = new CryptoKauf();
 
     }
 
@@ -59,6 +60,18 @@ namespace InvestmentManagement
 
 
     }// Click_RefreshStockPrice
+
+    private void Click_CalculateBuyOfCryptos(object sender, System.EventArgs e)
+    {
+      txt_StatusLeiste.Text = "";
+
+      CryptoKauf.LineNewBuy = int.Parse(txtb_LineNewBuy.Text);
+      CryptoKauf.GetAmountToInvest();
+      CryptoKauf.CalculteBuyForCoins();
+
+      txt_StatusLeiste.Text = "CalculateBuyOfCryptos is finished.";
+
+    }// Click_CalculateBuyOfCryptos
 
     private void ReleaseObject(object obj)
     {

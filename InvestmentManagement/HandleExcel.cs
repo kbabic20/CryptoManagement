@@ -7,16 +7,18 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace InvestmentManagement
 {
-  class HandleExcel
+  public class HandleExcel
   {
     Excel.Application xlApp;
-    Excel._Workbook oWB;
-    Excel._Worksheet oSheet;
+    static Excel._Workbook oWB;
+    static Excel._Worksheet oSheet;
     Excel.Range oRng;
     int itemNo_InvestmentAufteilung;
     int itemNo_Etf_Aktien_Infos;
     int itemNo_Mein_Bestand;
     int _amountOfstocks = 0;
+
+    static string worksheetNameOld = "";
 
     List<string> _urls = new List<string>();
     List<string> _stockTypes = new List<string>();
@@ -28,6 +30,29 @@ namespace InvestmentManagement
 
     WebCrawler webCrawler;
     CoinGeckoAPI coinGeckoAPI;
+
+    public enum Spalten
+    {
+      A = 1,
+      B,
+      C,
+      D,
+      E,
+      F,
+      G,
+      H,
+      I,
+      J,
+      K,
+      L,
+      M,
+      N,
+      O,
+      P,
+      Q
+
+       
+    }
 
     public HandleExcel(string _path)
     {
@@ -124,9 +149,9 @@ namespace InvestmentManagement
           for (int _currStock = _startLine; _currStock < (this._amountOfstocks + _startLine); _currStock++)
           {
 
-            this.oSheet.Cells[_currStock, _cellOfISIN.cellColum].Value = this._stockISINs[_currStock - _startLine];
-            this.oSheet.Cells[_currStock, _cellOfStockType.cellColum].Value = this._stockTypes[_currStock - _startLine];
-            this.oSheet.Cells[_currStock, _cellOfStockName.cellColum].Value = this._stockNames[_currStock - _startLine];
+            oSheet.Cells[_currStock, _cellOfISIN.cellColum].Value = this._stockISINs[_currStock - _startLine];
+            oSheet.Cells[_currStock, _cellOfStockType.cellColum].Value = this._stockTypes[_currStock - _startLine];
+            oSheet.Cells[_currStock, _cellOfStockName.cellColum].Value = this._stockNames[_currStock - _startLine];
 
             if (this._stockTypes[_currStock - _startLine] == "ETF")
             {
@@ -139,7 +164,7 @@ namespace InvestmentManagement
             else
             {
               Console.WriteLine("No stock type was found!");
-              this.oSheet.Cells[_currStock, _cellOfStockType.cellColum].Value = "Atkien Typ nicht gefunden!";
+              oSheet.Cells[_currStock, _cellOfStockType.cellColum].Value = "Atkien Typ nicht gefunden!";
             }
 
             if (_ticker == null)
@@ -149,7 +174,7 @@ namespace InvestmentManagement
             }
 
 
-            this.oSheet.Cells[_currStock, _cellOfStockTicker.cellColum].Value = _ticker;
+            oSheet.Cells[_currStock, _cellOfStockTicker.cellColum].Value = _ticker;
 
 
           }
@@ -199,7 +224,7 @@ namespace InvestmentManagement
 
     }
 
-    private (int cellLine, int cellColum) GetCellByName(string _name)
+    public (int cellLine, int cellColum) GetCellByName(string _name)
     {
       int _columOfName = 0;
       int _lineOfName = 0;
@@ -271,7 +296,7 @@ namespace InvestmentManagement
       this._stockTypes.Clear();
 
       // Get worksheet "Investment Aufteilung"
-      this.oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(itemNo_InvestmentAufteilung);
+      oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(itemNo_InvestmentAufteilung);
 
       this._amountOfstocks = GetAmountOfStocks(itemNo_InvestmentAufteilung);
       Console.WriteLine("Amount of stocks " + this._amountOfstocks);
@@ -490,6 +515,107 @@ namespace InvestmentManagement
     }
 
 
+    public static double GetValueFromCell(int _cellLine, int _cellColum, string _worksheetName)//int _indexOfWorksheet)
+    {
+      
 
+      if (worksheetNameOld != _worksheetName)
+      {
+        Console.WriteLine("_worksheetName: " + _worksheetName);
+        // Get worksheet 
+        for (int i = 1; i <= oWB.Worksheets.Count; i++)
+        {
+          oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(i);
+
+          if (oSheet.Name == _worksheetName)
+          {
+            worksheetNameOld = _worksheetName;
+            break;
+          }
+        }
+      }
+        
+      
+
+      if (!(oSheet is null))
+      {
+        return oSheet.Cells[_cellLine, _cellColum].Value;
+      }
+
+      return -9999;
+    }
+    public static string GetTextFromCell(int _cellLine, int _cellColum, string _worksheetName)//int _indexOfWorksheet)
+    {
+
+      if (worksheetNameOld != _worksheetName)
+      {
+        // Get worksheet 
+        for (int i = 1; i <= oWB.Worksheets.Count; i++)
+        {
+          oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(i);
+
+          if (oSheet.Name == _worksheetName)
+          {
+            worksheetNameOld = _worksheetName;
+            break;
+          }
+        }
+      }
+      
+
+
+      if (!(oSheet is null))
+      {
+        return oSheet.Cells[_cellLine, _cellColum].Value;
+      }
+
+      return null;
+    }
+
+    public static void SetTextInCell(string _text, int _cellLine, int _cellColum, string _worksheetName)
+    {
+
+
+      if (worksheetNameOld != _worksheetName)
+      {
+        // Get worksheet 
+        for (int i = 1; i <= oWB.Worksheets.Count; i++)
+        {
+          oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(i);
+
+          if (oSheet.Name == _worksheetName)
+          {
+            worksheetNameOld = _worksheetName;
+            break;
+          }
+        }
+      }
+
+      oSheet.Cells[_cellLine, _cellColum].Value = _text;
+
+    }
+
+    public static void SetValueInCell(double _value, int _cellLine, int _cellColum, string _worksheetName)
+    {
+
+
+      if (worksheetNameOld != _worksheetName)
+      {
+        // Get worksheet 
+        for (int i = 1; i <= oWB.Worksheets.Count; i++)
+        {
+          oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(i);
+
+          if (oSheet.Name == _worksheetName)
+          {
+            worksheetNameOld = _worksheetName;
+            break;
+          }
+        }
+      }
+
+      oSheet.Cells[_cellLine, _cellColum].Value = _value;
+
+    }
   }
 }

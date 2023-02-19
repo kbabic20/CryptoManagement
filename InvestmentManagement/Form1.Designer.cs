@@ -32,6 +32,9 @@ namespace InvestmentManagement
       this.btn_AktualisiereAktienkurse = new System.Windows.Forms.Button();
       this.txt_StatusLeiste = new System.Windows.Forms.TextBox();
       this.btn_AktualisiereCryptosPreise = new System.Windows.Forms.Button();
+      this.btn_BerKaufCryptos = new System.Windows.Forms.Button();
+      this.txtb_LineNewBuy = new System.Windows.Forms.TextBox();
+      this.lbl_LineNewBuy = new System.Windows.Forms.Label();
       this.SuspendLayout();
       // 
       // btn_AktualisiereAktienkurse
@@ -61,11 +64,40 @@ namespace InvestmentManagement
       this.btn_AktualisiereCryptosPreise.UseVisualStyleBackColor = true;
       this.btn_AktualisiereCryptosPreise.Click += new System.EventHandler(this.Click_RefreshCryptoPrice);
       // 
+      // btn_BerKaufCryptos
+      // 
+      this.btn_BerKaufCryptos.Location = new System.Drawing.Point(353, 164);
+      this.btn_BerKaufCryptos.Name = "btn_BerKaufCryptos";
+      this.btn_BerKaufCryptos.Size = new System.Drawing.Size(160, 44);
+      this.btn_BerKaufCryptos.TabIndex = 3;
+      this.btn_BerKaufCryptos.Text = "Berechne Kauf von Cryptos";
+      this.btn_BerKaufCryptos.UseVisualStyleBackColor = true;
+      this.btn_BerKaufCryptos.Click += new System.EventHandler(this.Click_CalculateBuyOfCryptos);
+      // 
+      // txtb_LineNewBuy
+      // 
+      this.txtb_LineNewBuy.Location = new System.Drawing.Point(629, 164);
+      this.txtb_LineNewBuy.Name = "txtb_LineNewBuy";
+      this.txtb_LineNewBuy.Size = new System.Drawing.Size(100, 20);
+      this.txtb_LineNewBuy.TabIndex = 4;
+      // 
+      // lbl_LineNewBuy
+      // 
+      this.lbl_LineNewBuy.AutoSize = true;
+      this.lbl_LineNewBuy.Location = new System.Drawing.Point(520, 164);
+      this.lbl_LineNewBuy.Name = "lbl_LineNewBuy";
+      this.lbl_LineNewBuy.Size = new System.Drawing.Size(103, 13);
+      this.lbl_LineNewBuy.TabIndex = 5;
+      this.lbl_LineNewBuy.Text = "Zeile ab neuer Kauf:";
+      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(800, 450);
+      this.Controls.Add(this.lbl_LineNewBuy);
+      this.Controls.Add(this.txtb_LineNewBuy);
+      this.Controls.Add(this.btn_BerKaufCryptos);
       this.Controls.Add(this.btn_AktualisiereCryptosPreise);
       this.Controls.Add(this.txt_StatusLeiste);
       this.Controls.Add(this.btn_AktualisiereAktienkurse);
@@ -81,6 +113,9 @@ namespace InvestmentManagement
         private System.Windows.Forms.Button btn_AktualisiereAktienkurse;
         private System.Windows.Forms.TextBox txt_StatusLeiste;
     private System.Windows.Forms.Button btn_AktualisiereCryptosPreise;
+    private System.Windows.Forms.Button btn_BerKaufCryptos;
+    private System.Windows.Forms.TextBox txtb_LineNewBuy;
+    private System.Windows.Forms.Label lbl_LineNewBuy;
   }
 }
 

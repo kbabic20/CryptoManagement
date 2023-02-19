@@ -89,9 +89,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoinGeckoAPI.cs" />
+    <Compile Include="CryptoBuyInfos.cs" />
+    <Compile Include="CryptoKauf.cs" />
     <Compile Include="EntryModel.cs" />
     <Compile Include="ExtractDataFromCSV.cs" />
     <Compile Include="HandleExcel.cs" />
+    <Compile Include="Risikoverteilung.cs" />
     <Compile Include="WebCrawler.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
