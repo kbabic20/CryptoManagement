@@ -152,7 +152,7 @@ namespace InvestmentManagement
             oSheet.Cells[_currStock, _cellOfISIN.cellColum].Value = this._stockISINs[_currStock - _startLine];
             oSheet.Cells[_currStock, _cellOfStockType.cellColum].Value = this._stockTypes[_currStock - _startLine];
             oSheet.Cells[_currStock, _cellOfStockName.cellColum].Value = this._stockNames[_currStock - _startLine];
-
+            
             if (this._stockTypes[_currStock - _startLine] == "ETF")
             {
               // _ticker = webCrawler.GetTickerFromISIN("https://de.extraetf.com/etf-profile/" + _currentISIN);

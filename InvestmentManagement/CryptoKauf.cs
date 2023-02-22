@@ -12,6 +12,8 @@ namespace InvestmentManagement
     int amountToInvest;
     int lineNewBuy;
     List<CryptoBuyInfos> cryptoBuyInfos = new List<CryptoBuyInfos>();
+    List<string> whereToBuy = new List<string>();
+    Dictionary<string, double> whereToBuyDic = new Dictionary<string, double>();
 
     public int LineNewBuy { get => lineNewBuy; set => lineNewBuy = value; }
 
@@ -48,6 +50,38 @@ namespace InvestmentManagement
         buyInfos.WhereToBuy = HandleExcel.GetTextFromCell(amountCryptosToBuyLine + i, (int)HandleExcel.Spalten.J, worksheet);
 
         cryptoBuyInfos.Add(buyInfos);
+
+        if (whereToBuy.Contains(buyInfos.WhereToBuy))
+        {
+          whereToBuy.Add(buyInfos.WhereToBuy);
+        }
+
+        if (!(buyInfos.BuyWith is null))
+        {
+          if(buyInfos.BuyWith.Contains("etwork"))
+          {
+            if (!whereToBuyDic.ContainsKey(buyInfos.BuyWith.ToLower()))
+            {
+              whereToBuyDic.Add(buyInfos.BuyWith.ToLower(), 0.0);
+            }
+          }
+          else
+          {
+            if (!whereToBuyDic.ContainsKey(buyInfos.WhereToBuy.ToLower()))
+            {
+              whereToBuyDic.Add(buyInfos.WhereToBuy.ToLower(), 0.0);
+            }
+
+          }
+        }
+        else 
+        {
+          if (!whereToBuyDic.ContainsKey(buyInfos.WhereToBuy.ToLower()))
+          {
+            whereToBuyDic.Add(buyInfos.WhereToBuy.ToLower(), 0.0);
+          }
+            
+        }
       }
 
       Risikoverteilung.GetAmountOfCryptos();
@@ -61,8 +95,21 @@ namespace InvestmentManagement
       double conversionEURTOUSD = HandleExcel.GetValueFromCell(5, (int)HandleExcel.Spalten.E, "Data");
       for (int i = 0; i < cryptoBuyInfos.Count; i++)
       {
-        cryptoBuyInfos[i].AmountToBuyEUR = (amountToInvest * (Risikoverteilung.BewertungsnummerAufteilung[cryptoBuyInfos[i].Bewertungsnummer] / 100))/ Risikoverteilung.AmountOfCoinsBewertungsnummer[cryptoBuyInfos[i].Bewertungsnummer];
-        cryptoBuyInfos[i].AmountToBuyUSD = cryptoBuyInfos[i].AmountToBuyEUR * conversionEURTOUSD;
+        if (cryptoBuyInfos[i].ShouldBeBought)
+        {
+          cryptoBuyInfos[i].AmountToBuyEUR = (amountToInvest * (Risikoverteilung.BewertungsnummerAufteilung[cryptoBuyInfos[i].Bewertungsnummer] / 100)) / Risikoverteilung.AmountOfCoinsBewertungsnummer[cryptoBuyInfos[i].Bewertungsnummer];
+          cryptoBuyInfos[i].AmountToBuyUSD = cryptoBuyInfos[i].AmountToBuyEUR * conversionEURTOUSD;
+          if (whereToBuyDic.ContainsKey(cryptoBuyInfos[i].WhereToBuy.ToLower()))
+          {
+            whereToBuyDic[cryptoBuyInfos[i].WhereToBuy.ToLower()] += cryptoBuyInfos[i].AmountToBuyEUR;
+          }
+          else if (whereToBuyDic.ContainsKey(cryptoBuyInfos[i].BuyWith.ToLower()))
+          {
+            whereToBuyDic[cryptoBuyInfos[i].BuyWith.ToLower()] += cryptoBuyInfos[i].AmountToBuyEUR;
+          }
+        }
+        
+        
       }
     }
 
@@ -85,10 +132,23 @@ namespace InvestmentManagement
           HandleExcel.SetValueInCell(cryptoBuyInfos[i].AmountToBuyEUR, 4 + counter, (int)HandleExcel.Spalten.H, worksheet);
           HandleExcel.SetValueInCell(cryptoBuyInfos[i].AmountToBuyUSD, 4 + counter, (int)HandleExcel.Spalten.I, worksheet);
 
+
+
           counter++;
         }
         
       }
+
+      double conversionEURTOUSD = HandleExcel.GetValueFromCell(5, (int)HandleExcel.Spalten.E, "Data");
+
+      for (int i = 0; i < whereToBuyDic.Count; i++)
+      {
+        HandleExcel.SetTextInCell(whereToBuyDic.ElementAt(i).Key + " EUR", 3 , (int)HandleExcel.Spalten.K + i *2, worksheet);
+        HandleExcel.SetTextInCell(whereToBuyDic.ElementAt(i).Key + "USD", 3, (int)HandleExcel.Spalten.K + i * 2 + 1, worksheet);
+        HandleExcel.SetValueInCell(whereToBuyDic.ElementAt(i).Value, 4, (int)HandleExcel.Spalten.K + i * 2, worksheet);
+        HandleExcel.SetValueInCell(whereToBuyDic.ElementAt(i).Value * conversionEURTOUSD, 4, (int)HandleExcel.Spalten.K + i * 2 + 1, worksheet);
+      }
+
     }
 
     void GetBewertungsnummer()
