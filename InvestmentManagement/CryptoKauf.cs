@@ -117,7 +117,8 @@ namespace InvestmentManagement
     {
       string worksheet = "Kauf Anweisung";
       int counter = 0;
-
+      HandleExcel.ClearRange("B4", "I1000", worksheet);
+      HandleExcel.ClearRange("K3", "AZ100", worksheet);
       HandleExcel.SetValueInCell(amountToInvest, 4 , (int)HandleExcel.Spalten.B, worksheet);
 
       for (int i = 0; i < cryptoBuyInfos.Count; i++)

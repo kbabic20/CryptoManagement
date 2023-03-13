@@ -617,5 +617,25 @@ namespace InvestmentManagement
       oSheet.Cells[_cellLine, _cellColum].Value = _value;
 
     }
+    public static void ClearRange( string _cell1, string _cell2, string _worksheetName)
+    {
+      if (worksheetNameOld != _worksheetName)
+      {
+        // Get worksheet 
+        for (int i = 1; i <= oWB.Worksheets.Count; i++)
+        {
+          oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(i);
+
+          if (oSheet.Name == _worksheetName)
+          {
+            worksheetNameOld = _worksheetName;
+            break;
+          }
+        }
+      }
+      oSheet.Range[_cell1, _cell2].Clear();
+    }
   }
+
+  
 }
