@@ -88,6 +88,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuySellInfo.cs" />
     <Compile Include="CoinGeckoAPI.cs" />
     <Compile Include="CryptoBuyInfos.cs" />
     <Compile Include="CryptoKauf.cs" />
