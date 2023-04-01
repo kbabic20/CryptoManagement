@@ -35,6 +35,7 @@ namespace InvestmentManagement
       this.btn_BerKaufCryptos = new System.Windows.Forms.Button();
       this.txtb_LineNewBuy = new System.Windows.Forms.TextBox();
       this.lbl_LineNewBuy = new System.Windows.Forms.Label();
+      this.btn_CollBuySellCryptos = new System.Windows.Forms.Button();
       this.SuspendLayout();
       // 
       // btn_AktualisiereAktienkurse
@@ -90,11 +91,22 @@ namespace InvestmentManagement
       this.lbl_LineNewBuy.TabIndex = 5;
       this.lbl_LineNewBuy.Text = "Zeile ab neuer Kauf:";
       // 
+      // btn_CollBuySellCryptos
+      // 
+      this.btn_CollBuySellCryptos.Location = new System.Drawing.Point(353, 228);
+      this.btn_CollBuySellCryptos.Name = "btn_CollBuySellCryptos";
+      this.btn_CollBuySellCryptos.Size = new System.Drawing.Size(160, 44);
+      this.btn_CollBuySellCryptos.TabIndex = 6;
+      this.btn_CollBuySellCryptos.Text = "Sammel Kauf/Verakuf Dataen von Cryptos";
+      this.btn_CollBuySellCryptos.UseVisualStyleBackColor = true;
+      this.btn_CollBuySellCryptos.Click += new System.EventHandler(this.Click_btn_CollBuySellCryptos);
+      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(800, 450);
+      this.Controls.Add(this.btn_CollBuySellCryptos);
       this.Controls.Add(this.lbl_LineNewBuy);
       this.Controls.Add(this.txtb_LineNewBuy);
       this.Controls.Add(this.btn_BerKaufCryptos);
@@ -116,6 +128,7 @@ namespace InvestmentManagement
     private System.Windows.Forms.Button btn_BerKaufCryptos;
     private System.Windows.Forms.TextBox txtb_LineNewBuy;
     private System.Windows.Forms.Label lbl_LineNewBuy;
+    private System.Windows.Forms.Button btn_CollBuySellCryptos;
   }
 }
 

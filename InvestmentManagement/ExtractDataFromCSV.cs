@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace InvestmentManagement
 {
  public class ExtractDataFromCSV
   {
-    enum Cex
+    public enum Cex
     {
       Mxc = 1,
       Kucoin,
@@ -20,12 +21,15 @@ namespace InvestmentManagement
 
     enum Spalte
     {
-      A,B,C,D,E,F,G,H,I,J,K
+      A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R
     }
+
+    public List<BuySellInfo> buySellInfoList = new List<BuySellInfo>();
+
     public static DataTable GetDataFromCSV(string filePath)
     {
       DataTable data = new DataTable();
-
+      
       using (TextFieldParser parser = new TextFieldParser(filePath))
       {
         parser.TextFieldType = FieldType.Delimited;
@@ -71,8 +75,10 @@ namespace InvestmentManagement
       excelApp.Quit();
     }
 
-    static void ExtractData(string _path, Cex _cex )
+     public void ExtractData(string _path, Cex _cex )
     {
+      Console.WriteLine("-------------ExtractData-------------");
+
       // Define the regular expression patterns to match numbers and non-numbers
       string numberPattern = @"-?\d+(\.\d+)?";
       string nonNumberPattern = @"[^\d\.]+";
@@ -90,41 +96,92 @@ namespace InvestmentManagement
           switch (_cex)
           {
             case Cex.Mxc:
-
-              string[] values = line.Split(',');
-              int separateNumberCount = 4;
-              string[] input = new string [separateNumberCount];
-              string[] numberString = new string[separateNumberCount];
-              string[] nonNumberString = new string[separateNumberCount];
-              decimal[] number = new decimal[separateNumberCount];
-              for (int i = 0; i < separateNumberCount; i++)
               {
-                input[i] = values[(int)Spalte.D+i];
+                // Skip first line
+                if (line.Equals("Pairs,Time,Side,Filled Price,Executed Amount,Total,Fee,Role"))
+                {
+                  continue;
+                }
 
-                // Extract the number and non-number substrings using regular expressions
-                numberString[i] = numberRegex.Match(input[i]).Value;
-                nonNumberString[i] = nonNumberRegex.Match(input[i]).Value;
+                string[] values = line.Split(',');
+                int separateNumberCount = 4;
+                string[] input = new string[separateNumberCount];
+                string[] numberString = new string[separateNumberCount];
+                string[] nonNumberString = new string[separateNumberCount];
+                decimal[] number = new decimal[separateNumberCount];
+                for (int i = 0; i < separateNumberCount; i++)
+                {
+                  input[i] = values[(int)Spalte.D + i];
 
-                // Parse the number substring to a decimal number
-                number[i] = decimal.Parse(numberString[i]);
+                  // Extract the number and non-number substrings using regular expressions
+                  numberString[i] = numberRegex.Match(input[i]).Value;
+                  nonNumberString[i] = nonNumberRegex.Match(input[i]).Value;
+
+                  // Parse the number substring to a decimal number
+                  number[i] = decimal.Parse(numberString[i]);
+                }
+
+
+                BuySellInfo buySellInfo = new BuySellInfo
+                {
+                  Plattfrom = "Mexc",
+                  Pair = values[(int)Spalte.A].Replace("_", "/"),
+                  Date = values[(int)Spalte.B],
+                  BuyOrSell = values[(int)Spalte.C],
+                  Price = numberString[0],
+                  PriceCurrency = nonNumberString[0],
+                  RecievedAmount = numberString[1],
+                  AmountInvested = numberString[2],
+                  Fee = numberString[3]
+                };
+
+                buySellInfoList.Add(buySellInfo);
               }
-              
 
-              BuySellInfo buySellInfo = new BuySellInfo
-              {
-                Plattfrom = "Mexc",
-                Pair = values[(int)Spalte.A].Replace("_", "/"),
-                Date = values[(int)Spalte.B],
-                BuyOrSell = values[(int)Spalte.C],
-                Price = numberString[0],
-                PriceCurrency = nonNumberString[0],
-                RecievedAmount = numberString[1],
-                AmountInvested = numberString[2],
-                Fee = numberString[3]
-              };
-          
+
           break;
             case Cex.Kucoin:
+              {
+                // Skip first line
+                if (line.Equals("orderCreatedAt,id,clientOid,symbol,side,type,stopPrice,price,size,dealSize,dealFunds,averagePrice,fee,feeCurrency,remark,tags,orderStatus,"))
+                {
+                  continue;
+                }
+
+                string[] values = line.Split(',');
+                int separateNumberCount = 4;
+                string[] input = new string[separateNumberCount];
+                string[] numberString = new string[separateNumberCount];
+                string[] nonNumberString = new string[separateNumberCount];
+                decimal[] number = new decimal[separateNumberCount];
+                //for (int i = 0; i < separateNumberCount; i++)
+                //{
+                //  input[i] = values[(int)Spalte.D + i];
+
+                //  // Extract the number and non-number substrings using regular expressions
+                //  numberString[i] = numberRegex.Match(input[i]).Value;
+                //  nonNumberString[i] = nonNumberRegex.Match(input[i]).Value;
+
+                //  // Parse the number substring to a decimal number
+                //  number[i] = decimal.Parse(numberString[i]);
+                //}
+
+
+                BuySellInfo buySellInfo = new BuySellInfo
+                {
+                  Plattfrom = "Kucoin",
+                  Pair = values[(int)Spalte.D].Replace("-", "/"),
+                  Date = values[(int)Spalte.A],
+                  BuyOrSell = values[(int)Spalte.E],
+                  Price = values[(int)Spalte.L],
+                  PriceCurrency = values[(int)Spalte.N],
+                  RecievedAmount = numberString[1],
+                  AmountInvested = numberString[2],
+                  Fee = values[(int)Spalte.M]
+                };
+
+                buySellInfoList.Add(buySellInfo);
+              }
               break;
             case Cex.Binance:
               break;

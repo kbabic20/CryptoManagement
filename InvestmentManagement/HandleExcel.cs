@@ -224,7 +224,7 @@ namespace InvestmentManagement
 
     }
 
-    public (int cellLine, int cellColum) GetCellByName(string _name)
+    (int cellLine, int cellColum) GetCellByName(string _name)
     {
       int _columOfName = 0;
       int _lineOfName = 0;
@@ -283,6 +283,73 @@ namespace InvestmentManagement
         }
 
       }
+
+      return (_lineOfName, _columOfName);
+    }
+    public static (int cellLine, int cellColum) GetCellByName(string _name, string _worksheetName)
+    {
+      int _columOfName = 0;
+      int _lineOfName = 0;
+      int _limitSearch = 50;
+      int _colum;
+      bool _cellWasNotFound = false;
+      bool _cellWasFound = false;
+
+      Console.WriteLine("-------------GetCellByName-------------");
+
+      if (worksheetNameOld != _worksheetName)
+      {
+        Console.WriteLine("_worksheetName: " + _worksheetName);
+        // Get worksheet 
+        for (int i = 1; i <= oWB.Worksheets.Count; i++)
+        {
+          oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(i);
+
+          if (oSheet.Name == _worksheetName)
+          {
+            worksheetNameOld = _worksheetName;
+            break;
+          }
+        }
+      }
+      if (!(oSheet is null))
+      {
+        for (int _currLine = 1; _currLine < _limitSearch; _currLine++)
+        {
+          _cellWasNotFound = false;
+          _colum = 1;
+
+          for (int _currColum = 0; _currColum < _limitSearch; _currColum++)
+          {
+            try
+            {
+              if (oSheet.Cells[_currLine, _currColum].Value == _name)
+              {
+                _columOfName = _currColum;
+                _lineOfName = _currLine;
+                _cellWasFound = true;
+                break;
+              }
+            }
+            catch (Exception)
+            {
+
+              //throw;
+              continue;
+            }
+
+
+          }
+
+          if (_cellWasFound)
+          {
+
+            break;
+          }
+
+        }
+      }
+      
 
       return (_lineOfName, _columOfName);
     }

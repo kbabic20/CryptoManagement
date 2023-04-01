@@ -90,6 +90,7 @@
   <ItemGroup>
     <Compile Include="BuySellInfo.cs" />
     <Compile Include="CoinGeckoAPI.cs" />
+    <Compile Include="CollectData.cs" />
     <Compile Include="CryptoBuyInfos.cs" />
     <Compile Include="CryptoKauf.cs" />
     <Compile Include="EntryModel.cs" />

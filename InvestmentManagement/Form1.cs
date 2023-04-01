@@ -72,7 +72,14 @@ namespace InvestmentManagement
       txt_StatusLeiste.Text = "CalculateBuyOfCryptos is finished.";
 
     }// Click_CalculateBuyOfCryptos
+    private void Click_btn_CollBuySellCryptos(object sender, System.EventArgs e)
+    {
+      txt_StatusLeiste.Text = "";
+      CollectData collectData = new CollectData();
+      collectData.ExtractDataAndInsertInExcel(@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\MEXC\Käufe-Verkäufe\history_transaction_recode_c4385b842ced41bebce76099d309c525_1665931618199.csv", "");
+      txt_StatusLeiste.Text = "CollBuySellCryptos is finished.";
 
+    }// Click_btn_CollBuySellCryptos
     private void ReleaseObject(object obj)
     {
       try
