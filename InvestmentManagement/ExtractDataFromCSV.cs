@@ -13,7 +13,7 @@ namespace InvestmentManagement
   {
     public enum Cex
     {
-      Mxc = 1,
+      Mexc = 1,
       Kucoin,
       Binance,
       Okx
@@ -95,7 +95,7 @@ namespace InvestmentManagement
 
           switch (_cex)
           {
-            case Cex.Mxc:
+            case Cex.Mexc:
               {
                 // Skip first line
                 if (line.Equals("Pairs,Time,Side,Filled Price,Executed Amount,Total,Fee,Role"))
@@ -124,14 +124,14 @@ namespace InvestmentManagement
 
                 BuySellInfo buySellInfo = new BuySellInfo
                 {
-                  Plattfrom = "Mexc",
+                  Plattfrom = Cex.Mexc.ToString(),//"Mexc",
                   Pair = values[(int)Spalte.A].Replace("_", "/"),
                   Date = values[(int)Spalte.B],
                   BuyOrSell = values[(int)Spalte.C],
                   Price = numberString[0],
                   PriceCurrency = nonNumberString[0],
                   RecievedAmount = numberString[1],
-                  AmountInvested = numberString[2],
+                  AmountInvestedAfterFee = numberString[2],
                   Fee = numberString[3]
                 };
 
@@ -149,23 +149,6 @@ namespace InvestmentManagement
                 }
 
                 string[] values = line.Split(',');
-                int separateNumberCount = 4;
-                string[] input = new string[separateNumberCount];
-                string[] numberString = new string[separateNumberCount];
-                string[] nonNumberString = new string[separateNumberCount];
-                decimal[] number = new decimal[separateNumberCount];
-                //for (int i = 0; i < separateNumberCount; i++)
-                //{
-                //  input[i] = values[(int)Spalte.D + i];
-
-                //  // Extract the number and non-number substrings using regular expressions
-                //  numberString[i] = numberRegex.Match(input[i]).Value;
-                //  nonNumberString[i] = nonNumberRegex.Match(input[i]).Value;
-
-                //  // Parse the number substring to a decimal number
-                //  number[i] = decimal.Parse(numberString[i]);
-                //}
-
 
                 BuySellInfo buySellInfo = new BuySellInfo
                 {
@@ -175,8 +158,8 @@ namespace InvestmentManagement
                   BuyOrSell = values[(int)Spalte.E],
                   Price = values[(int)Spalte.L],
                   PriceCurrency = values[(int)Spalte.N],
-                  RecievedAmount = numberString[1],
-                  AmountInvested = numberString[2],
+                  RecievedAmount = values[(int)Spalte.J],
+                  AmountInvestedAfterFee = values[(int)Spalte.K],
                   Fee = values[(int)Spalte.M]
                 };
 

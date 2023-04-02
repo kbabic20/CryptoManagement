@@ -15,6 +15,7 @@ namespace InvestmentManagement
     public string Price { get; set; }
     public string PriceCurrency { get; set; }
     public string RecievedAmount { get; set; }
+    public string AmountInvestedAfterFee { get; set; }
     public string AmountInvested { get; set; }
     public string Fee { get; set; }
   }
