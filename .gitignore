@@ -26,5 +26,7 @@ wvz_bitmap_temp.bmp
 Build/Deploy/
 Build/Debug/
 Build/Release/
+InvestmentManagement/obj/Debug/
+InvestmentManagement/bin/Debug/
 *.zip
 *.7z

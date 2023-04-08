@@ -125,14 +125,14 @@ namespace InvestmentManagement
                 BuySellInfo buySellInfo = new BuySellInfo
                 {
                   Plattfrom = Cex.Mexc.ToString(),//"Mexc",
-                  Pair = values[(int)Spalte.A].Replace("_", "/"),
+                  Pair = values[(int)Spalte.A], //.Replace("_", "/"),
                   Date = values[(int)Spalte.B],
                   BuyOrSell = values[(int)Spalte.C],
-                  Price = numberString[0],
-                  PriceCurrency = nonNumberString[0],
-                  RecievedAmount = numberString[1],
-                  AmountInvestedAfterFee = numberString[2],
-                  Fee = numberString[3]
+                  Price = values[(int)Spalte.D], //numberString[0],
+                  PriceCurrency = values[(int)Spalte.D],
+                  RecievedAmount = values[(int)Spalte.E],
+                  AmountInvestedAfterFee = values[(int)Spalte.F],
+                  Fee = values[(int)Spalte.G]
                 };
 
                 buySellInfoList.Add(buySellInfo);
@@ -152,8 +152,8 @@ namespace InvestmentManagement
 
                 BuySellInfo buySellInfo = new BuySellInfo
                 {
-                  Plattfrom = "Kucoin",
-                  Pair = values[(int)Spalte.D].Replace("-", "/"),
+                  Plattfrom = Cex.Kucoin.ToString(),//"Kucoin",
+                  Pair = values[(int)Spalte.D],//.Replace("-", "/"),
                   Date = values[(int)Spalte.A],
                   BuyOrSell = values[(int)Spalte.E],
                   Price = values[(int)Spalte.L],
@@ -167,6 +167,65 @@ namespace InvestmentManagement
               }
               break;
             case Cex.Binance:
+              {
+                bool isSubOrder = false;
+                // Skip first line
+                if (line.Equals("Date(UTC);OrderNo;Pair;Type;Order Price;Order Amount;AvgTrading Price;Filled;Total;status"))
+                {
+                  continue;
+                }
+
+                // Skip first line
+                if (line.Equals(";Date(UTC);Trading Price;Filled;Total;Fee;;;;"))
+                {
+                  continue;
+                }
+
+                string[] values = line.Split(';');
+
+                // Get sub orders
+                if (!(values[0].Length > 0) && values[1].Length > 0)
+                {
+                  isSubOrder = true;
+                }
+                else
+                {
+                  isSubOrder = false;
+                }
+
+                if (!isSubOrder)
+                {
+                  BuySellInfo buySellInfo = new BuySellInfo
+                  {
+                    Plattfrom = Cex.Binance.ToString(),
+                    Pair = values[(int)Spalte.C],
+                    Date = values[(int)Spalte.A],
+                    BuyOrSell = values[(int)Spalte.D],
+                    Price = values[(int)Spalte.G],
+                    PriceCurrency = values[(int)Spalte.C],
+                    RecievedAmount = values[(int)Spalte.F],
+                    AmountInvestedAfterFee = values[(int)Spalte.I],
+                    Fee = ""
+                  };
+
+                  buySellInfoList.Add(buySellInfo);
+
+                }
+                else
+                {
+                  if (buySellInfoList[buySellInfoList.Count - 1].Fee.Length > 0)
+                  {
+
+                    buySellInfoList[buySellInfoList.Count - 1].Fee += "+" + values[(int)Spalte.F];
+                  }
+                  else
+                  {
+                    buySellInfoList[buySellInfoList.Count - 1].Fee = values[(int)Spalte.F];
+                  }
+                }
+
+              }
+
               break;
             case Cex.Okx:
               break;

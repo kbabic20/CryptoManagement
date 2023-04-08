@@ -22,8 +22,8 @@ namespace InvestmentManagement
     HandleExcel handleExcel;
     CoinGeckoAPI coinGeckoAPI;
     CryptoKauf CryptoKauf;
-    string _excelFilePath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Crypto Investment_aktuell.xlsx";// "C:\\Users\\Kasim\\OneDrive - rfh-campus.de\\Finanzen\\Investment\\Cryptos\\Crypto Investment.xlsx";
-    string csvPath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\Export Order History-2022-01-29 18_09_36.csv";
+    string _excelFilePath = @"C:\Projekte\Unterlagen\Cryptos\Dokumente\Crypto Investment_aktuell.xlsx"; //@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Crypto Investment_aktuell.xlsx";
+    string csvPath = @"C:\Projekte\Unterlagen\Cryptos\Dokumente\Binance\Export Order History-2022-10-16 16_49_26.csv";//@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\Export Order History-2022-01-29 18_09_36.csv";
     string testExcelPath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\test.xlsx";
     public Form1()
     {
@@ -76,7 +76,7 @@ namespace InvestmentManagement
     {
       txt_StatusLeiste.Text = "";
       CollectData collectData = new CollectData();
-      collectData.ExtractDataAndInsertInExcel(@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\MEXC\Käufe-Verkäufe\history_transaction_recode_c4385b842ced41bebce76099d309c525_1665931618199.csv", "");
+      collectData.ExtractDataAndInsertInExcel(csvPath, "");
       txt_StatusLeiste.Text = "CollBuySellCryptos is finished.";
 
     }// Click_btn_CollBuySellCryptos

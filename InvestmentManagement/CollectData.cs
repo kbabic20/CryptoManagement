@@ -15,8 +15,8 @@ namespace InvestmentManagement
       Console.WriteLine("-------------ExtractDataAndInsertInExcel-------------");
 
       ExtractDataFromCSV extractDataFromCSV = new ExtractDataFromCSV();
-      extractDataFromCSV.ExtractData(_fileToExtract, ExtractDataFromCSV.Cex.Mexc);
-      extractDataFromCSV.ExtractData(@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Kucoin\HISTORY_634c1b3bed20b6000741be35.csv", ExtractDataFromCSV.Cex.Kucoin);
+      extractDataFromCSV.ExtractData(_fileToExtract, ExtractDataFromCSV.Cex.Binance);
+      //extractDataFromCSV.ExtractData(@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Kucoin\HISTORY_634c1b3bed20b6000741be35.csv", ExtractDataFromCSV.Cex.Kucoin);
       InsertBuySellData(extractDataFromCSV.buySellInfoList);
     }
 
@@ -30,13 +30,14 @@ namespace InvestmentManagement
 
       var cellOfDate = HandleExcel.GetCellByName("Datum", worksheet);
       var cellOfPair = HandleExcel.GetCellByName("Pair", worksheet);
-      var cellOfBuy_Sell = HandleExcel.GetCellByName("Kauf/Verkauf", worksheet);
+      var cellOfBuy_Sell = HandleExcel.GetCellByName("Kauf/Verkauf?", worksheet);
       var cellOfDepot = HandleExcel.GetCellByName("Depot", worksheet);
       var cellOfRecievedAmount = HandleExcel.GetCellByName("Stückzahl", worksheet);
       var cellOfPrice = HandleExcel.GetCellByName("Preis pro Stück beim Kauf/Verkauf (bezogen auf das Pair)", worksheet);
-      var cellOfPriceCurrency = HandleExcel.GetCellByName("Stückzahl", worksheet);
+      //var cellOfPriceCurrency = HandleExcel.GetCellByName("Stückzahl", worksheet);
       var cellOfFee = HandleExcel.GetCellByName("Gebühren (bezogen auf das Pair)", worksheet);
       var cellOfAmountInvested = HandleExcel.GetCellByName("Gezahlt/Bekommen insgesamt (bezogen auf das Pair)", worksheet);
+      var cellOfAmountInvestedAfterFee = HandleExcel.GetCellByName("Gezahlt/Bekommen ohne Gebühr (bezogen auf das Pair)", worksheet);
 
       for (int i = 0; i < _buySellInfoList.Count; i++)
       {
@@ -44,6 +45,11 @@ namespace InvestmentManagement
         HandleExcel.SetTextInCell(_buySellInfoList[i].Price, cellOfPrice.cellLine + 1 + i, cellOfPrice.cellColum, worksheet);
         HandleExcel.SetTextInCell(_buySellInfoList[i].Plattfrom, cellOfDepot.cellLine + 1 + i, cellOfDepot.cellColum, worksheet);
         HandleExcel.SetTextInCell(_buySellInfoList[i].Pair, cellOfPair.cellLine + 1 + i, cellOfPair.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_buySellInfoList[i].Fee, cellOfFee.cellLine + 1 + i, cellOfFee.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_buySellInfoList[i].BuyOrSell, cellOfBuy_Sell.cellLine + 1 + i, cellOfBuy_Sell.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_buySellInfoList[i].RecievedAmount, cellOfRecievedAmount.cellLine + 1 + i, cellOfRecievedAmount.cellColum, worksheet);
+        //HandleExcel.SetTextInCell(_buySellInfoList[i].PriceCurrency, cellOfPriceCurrency.cellLine + 1 + i, cellOfPriceCurrency.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_buySellInfoList[i].AmountInvestedAfterFee, cellOfAmountInvestedAfterFee.cellLine + 1 + i, cellOfAmountInvestedAfterFee.cellColum, worksheet);
       }
 
     }
@@ -106,6 +112,10 @@ namespace InvestmentManagement
 
           break;
         case ExtractDataFromCSV.Cex.Kucoin:
+          _buySellInfo.Price = _buySellInfo.Price.Replace(",", "");
+          _buySellInfo.RecievedAmount = _buySellInfo.Price.Replace(",", "");
+          _buySellInfo.AmountInvested = _buySellInfo.Price.Replace(",", "");
+          _buySellInfo.Fee = _buySellInfo.Price.Replace(",", "");
           break;
         case ExtractDataFromCSV.Cex.Binance:
           break;
@@ -115,5 +125,25 @@ namespace InvestmentManagement
           break;
       }
     }
-  }
+
+    void FormatPair(ref BuySellInfo _buySellInfo)
+    {
+      string pairSeperator = "/";
+      switch (Enum.Parse(typeof(ExtractDataFromCSV.Cex), _buySellInfo.Plattfrom))
+      {
+        case ExtractDataFromCSV.Cex.Mexc:
+          _buySellInfo.Pair = _buySellInfo.Pair.Replace("_", pairSeperator);
+          break;
+        case ExtractDataFromCSV.Cex.Kucoin:
+          _buySellInfo.Pair = _buySellInfo.Pair.Replace("-", pairSeperator);
+          break;
+        case ExtractDataFromCSV.Cex.Binance:
+          break;
+        case ExtractDataFromCSV.Cex.Okx:
+          break;
+        default:
+          break;
+      }
+    }
+  }//class CollectData
 }
