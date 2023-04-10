@@ -18,5 +18,6 @@ namespace InvestmentManagement
     public string AmountInvestedAfterFee { get; set; }
     public string AmountInvested { get; set; }
     public string Fee { get; set; }
+    public string FeeCurrency { get; set; }
   }
 }
