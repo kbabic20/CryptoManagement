@@ -10,7 +10,6 @@ using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
 
-
 namespace InvestmentManagement
 {
   public partial class Form1 : Form
@@ -25,6 +24,7 @@ namespace InvestmentManagement
     string _excelFilePath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Crypto Investment_aktuell.xlsx"; //@"C:\Projekte\Unterlagen\Cryptos\Dokumente\Crypto Investment_aktuell.xlsx"; //
     string csvPath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\Export Order History-2022-10-16 16_49_26.csv";// @"C:\Projekte\Unterlagen\Cryptos\Dokumente\Binance\Export Order History-2022-10-16 16_49_26.csv";//
     string testExcelPath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\test.xlsx";
+    string documentFolder = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\";
     public Form1()
     {
       InitializeComponent();
@@ -80,6 +80,7 @@ namespace InvestmentManagement
       txt_StatusLeiste.Text = "CollBuySellCryptos is finished.";
 
     }// Click_btn_CollBuySellCryptos
+
     private void ReleaseObject(object obj)
     {
       try

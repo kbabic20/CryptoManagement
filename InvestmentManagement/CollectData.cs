@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.IO;
 
 namespace InvestmentManagement
 {
@@ -17,18 +18,60 @@ namespace InvestmentManagement
     // Create regular expression objects for both patterns
     Regex numberRegex = new Regex(numberPattern);
     Regex nonNumberRegex = new Regex(nonNumberPattern);
+    ExtractDataFromCSV extractDataFromCSV = new ExtractDataFromCSV();
 
-    public void ExtractDataAndInsertInExcel(string _fileToExtract, string _excelFile)
+    public void ExtractDataAndInsertInExcel(string _documentFolderPath, string _excelFile)
     {
       Console.WriteLine("-------------ExtractDataAndInsertInExcel-------------");
 
-      ExtractDataFromCSV extractDataFromCSV = new ExtractDataFromCSV();
-      extractDataFromCSV.ExtractData(_fileToExtract, ExtractDataFromCSV.Cex.Binance);
+      GoThroughEachFolder(GetFoldersUnderCryptoDocumentPath(_documentFolderPath));
       //extractDataFromCSV.ExtractData(@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Kucoin\HISTORY_634c1b3bed20b6000741be35.csv", ExtractDataFromCSV.Cex.Kucoin);
       FormatData(ref extractDataFromCSV.buySellInfoList); 
       InsertBuySellData(extractDataFromCSV.buySellInfoList);
     }
 
+
+    string[] GetFoldersUnderCryptoDocumentPath(string _documentPath)
+    {
+      string[] dirs = Directory.GetDirectories(_documentPath, "*", SearchOption.TopDirectoryOnly);
+
+      foreach (string dir in dirs)
+      {
+        Console.WriteLine(dir);
+      }
+
+      return dirs;
+    }
+
+    void GoThroughEachFolder(string[] _dirs)
+    {
+      string nameOfCex = "";
+      string csvFile = "Käufe-Verkäufe\\Alle Transaktionen.csv";
+
+      for (int i = 0; i < _dirs.Length; i++)
+      {
+        string[] split = _dirs[i].Split('\\');
+
+        nameOfCex = split[split.Length - 1];
+
+        switch (Enum.Parse(typeof(ExtractDataFromCSV.Cex), nameOfCex))
+        {
+          case ExtractDataFromCSV.Cex.Mexc:
+            extractDataFromCSV.ExtractData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Mexc);
+            break;
+          case ExtractDataFromCSV.Cex.Kucoin:
+            extractDataFromCSV.ExtractData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Kucoin);
+            break;
+          case ExtractDataFromCSV.Cex.Binance:
+            extractDataFromCSV.ExtractData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Binance);
+            break;
+          case ExtractDataFromCSV.Cex.Okx:
+            extractDataFromCSV.ExtractData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Okx);
+            break;
+        }
+        
+      }
+    }
     void InsertBuySellData(List<BuySellInfo> _buySellInfoList)
     {
       Console.WriteLine("-------------InsertBuySellData-------------");
