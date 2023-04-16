@@ -80,6 +80,14 @@ namespace InvestmentManagement
       txt_StatusLeiste.Text = "CollBuySellCryptos is finished.";
 
     }// Click_btn_CollBuySellCryptos
+    private void Click_btn_MergeFlies(object sender, System.EventArgs e)
+    {
+      txt_StatusLeiste.Text = "";
+      CollectData collectData = new CollectData();
+      collectData.MergeFiles(documentFolder);
+      txt_StatusLeiste.Text = "MergeFlies is finished.";
+
+    }// Click_btn_CollBuySellCryptos
 
     private void ReleaseObject(object obj)
     {

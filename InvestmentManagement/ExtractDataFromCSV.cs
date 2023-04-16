@@ -16,7 +16,8 @@ namespace InvestmentManagement
       Mexc = 1,
       Kucoin,
       Binance,
-      Okx
+      Okx,
+      CryptoCom
     }
 
     enum Spalte

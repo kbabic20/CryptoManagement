@@ -36,6 +36,7 @@ namespace InvestmentManagement
       this.txtb_LineNewBuy = new System.Windows.Forms.TextBox();
       this.lbl_LineNewBuy = new System.Windows.Forms.Label();
       this.btn_CollBuySellCryptos = new System.Windows.Forms.Button();
+      this.btn_MergeFlies = new System.Windows.Forms.Button();
       this.SuspendLayout();
       // 
       // btn_AktualisiereAktienkurse
@@ -93,7 +94,7 @@ namespace InvestmentManagement
       // 
       // btn_CollBuySellCryptos
       // 
-      this.btn_CollBuySellCryptos.Location = new System.Drawing.Point(353, 228);
+      this.btn_CollBuySellCryptos.Location = new System.Drawing.Point(353, 274);
       this.btn_CollBuySellCryptos.Name = "btn_CollBuySellCryptos";
       this.btn_CollBuySellCryptos.Size = new System.Drawing.Size(160, 44);
       this.btn_CollBuySellCryptos.TabIndex = 6;
@@ -101,11 +102,22 @@ namespace InvestmentManagement
       this.btn_CollBuySellCryptos.UseVisualStyleBackColor = true;
       this.btn_CollBuySellCryptos.Click += new System.EventHandler(this.Click_btn_CollBuySellCryptos);
       // 
+      // btn_MergeFlies
+      // 
+      this.btn_MergeFlies.Location = new System.Drawing.Point(353, 214);
+      this.btn_MergeFlies.Name = "btn_MergeFlies";
+      this.btn_MergeFlies.Size = new System.Drawing.Size(160, 44);
+      this.btn_MergeFlies.TabIndex = 7;
+      this.btn_MergeFlies.Text = "Führe Dokumente zusammen";
+      this.btn_MergeFlies.UseVisualStyleBackColor = true;
+      this.btn_MergeFlies.Click += new System.EventHandler(this.Click_btn_MergeFlies);
+      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(800, 450);
+      this.Controls.Add(this.btn_MergeFlies);
       this.Controls.Add(this.btn_CollBuySellCryptos);
       this.Controls.Add(this.lbl_LineNewBuy);
       this.Controls.Add(this.txtb_LineNewBuy);
@@ -129,6 +141,7 @@ namespace InvestmentManagement
     private System.Windows.Forms.TextBox txtb_LineNewBuy;
     private System.Windows.Forms.Label lbl_LineNewBuy;
     private System.Windows.Forms.Button btn_CollBuySellCryptos;
+    private System.Windows.Forms.Button btn_MergeFlies;
   }
 }
 

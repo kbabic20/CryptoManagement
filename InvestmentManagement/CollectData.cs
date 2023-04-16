@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.IO;
+using System.Collections;
 
 namespace InvestmentManagement
 {
@@ -20,11 +21,19 @@ namespace InvestmentManagement
     Regex nonNumberRegex = new Regex(nonNumberPattern);
     ExtractDataFromCSV extractDataFromCSV = new ExtractDataFromCSV();
 
+    public void MergeFiles(string _documentFolderPath)
+    {
+      Console.WriteLine("-------------MergeFiles-------------");
+
+      GoThroughEachFolderMerge(GetFoldersUnderCryptoDocumentPath(_documentFolderPath));
+
+    }
+
     public void ExtractDataAndInsertInExcel(string _documentFolderPath, string _excelFile)
     {
       Console.WriteLine("-------------ExtractDataAndInsertInExcel-------------");
 
-      GoThroughEachFolder(GetFoldersUnderCryptoDocumentPath(_documentFolderPath));
+      GoThroughEachFolderExtract(GetFoldersUnderCryptoDocumentPath(_documentFolderPath));
       //extractDataFromCSV.ExtractData(@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Kucoin\HISTORY_634c1b3bed20b6000741be35.csv", ExtractDataFromCSV.Cex.Kucoin);
       FormatData(ref extractDataFromCSV.buySellInfoList); 
       InsertBuySellData(extractDataFromCSV.buySellInfoList);
@@ -43,7 +52,40 @@ namespace InvestmentManagement
       return dirs;
     }
 
-    void GoThroughEachFolder(string[] _dirs)
+    void GoThroughEachFolderMerge(string[] _dirs)
+    {
+      string nameOfCex = "";
+
+      for (int i = 0; i < _dirs.Length; i++)
+      {
+        string[] split = _dirs[i].Split('\\');
+
+        string dirBuySell = _dirs[i] + "\\Käufe-Verkäufe";
+        string csvFiles = dirBuySell + "\\Einzelne CSV Files";
+        string[] fileNames = Directory.GetFiles(csvFiles);
+        string outputfile = dirBuySell + "\\Alle Transaktionen.csv";
+        char csvSeperator = ',';
+        nameOfCex = split[split.Length - 1];
+
+        switch (Enum.Parse(typeof(ExtractDataFromCSV.Cex), nameOfCex))
+        {
+          case ExtractDataFromCSV.Cex.Mexc:
+            break;
+          case ExtractDataFromCSV.Cex.Kucoin:
+            break;
+          case ExtractDataFromCSV.Cex.Binance:
+            csvSeperator = ';';
+            MergeFilesToOne(fileNames, outputfile);
+            break;
+          case ExtractDataFromCSV.Cex.Okx:
+            break;
+          default:
+            break;
+        }
+      }
+    }
+
+    void GoThroughEachFolderExtract(string[] _dirs)
     {
       string nameOfCex = "";
       string csvFile = "Käufe-Verkäufe\\Alle Transaktionen.csv";
@@ -71,6 +113,26 @@ namespace InvestmentManagement
         }
         
       }
+    }
+    static void MergeFilesToOne(string[] _fileNames, string _outputFileName)
+    {
+      // Initialize a HashSet to hold the unique lines of all CSV files
+      HashSet<string> uniqueLines = new HashSet<string>();
+
+      // Iterate over the file names and read their lines into the HashSet
+      foreach (string fileName in _fileNames)
+      {
+        // Read all the lines of the current file and add them to the HashSet
+        string[] lines = File.ReadAllLines(fileName);
+        foreach (string line in lines)
+        {
+          uniqueLines.Add(line);
+        }
+      }
+
+      // Write the unique lines of the merged CSV file to the output file
+      File.WriteAllLines(_outputFileName, uniqueLines);
+
     }
     void InsertBuySellData(List<BuySellInfo> _buySellInfoList)
     {
