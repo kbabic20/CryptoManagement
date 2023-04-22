@@ -19,13 +19,27 @@ namespace InvestmentManagement
       Okx,
       CryptoCom
     }
+    public enum Network
+    {
+      Ethereum = 1,
+      Bsc,
+      Ploygon,
+      Fantom,
+      Arbitrum,
+      Optimism,
+      Tron,
+      Avalanche,
+      Solana,
+      Bitcoin
+    }
 
     enum Spalte
     {
       A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R
     }
 
-    public List<BuySellInfo> buySellInfoList = new List<BuySellInfo>();
+    public List<CexBuySellInfo> cexBuySellInfoList = new List<CexBuySellInfo>();
+    public List<NetworkInfo> networkInfoList = new List<NetworkInfo>();
 
     public static DataTable GetDataFromCSV(string filePath)
     {
@@ -76,7 +90,7 @@ namespace InvestmentManagement
       excelApp.Quit();
     }
 
-     public void ExtractData(string _path, Cex _cex )
+     public void ExtractCexData(string _path, Cex _cex )
     {
       Console.WriteLine("-------------ExtractData-------------");
 
@@ -123,7 +137,7 @@ namespace InvestmentManagement
                 }
 
 
-                BuySellInfo buySellInfo = new BuySellInfo
+                CexBuySellInfo buySellInfo = new CexBuySellInfo
                 {
                   Plattfrom = Cex.Mexc.ToString(),//"Mexc",
                   Pair = values[(int)Spalte.A], //.Replace("_", "/"),
@@ -136,7 +150,7 @@ namespace InvestmentManagement
                   Fee = values[(int)Spalte.G]
                 };
 
-                buySellInfoList.Add(buySellInfo);
+                cexBuySellInfoList.Add(buySellInfo);
               }
 
 
@@ -151,7 +165,7 @@ namespace InvestmentManagement
 
                 string[] values = line.Split(',');
 
-                BuySellInfo buySellInfo = new BuySellInfo
+                CexBuySellInfo buySellInfo = new CexBuySellInfo
                 {
                   Plattfrom = Cex.Kucoin.ToString(),//"Kucoin",
                   Pair = values[(int)Spalte.D],//.Replace("-", "/"),
@@ -164,7 +178,7 @@ namespace InvestmentManagement
                   Fee = values[(int)Spalte.M]
                 };
 
-                buySellInfoList.Add(buySellInfo);
+                cexBuySellInfoList.Add(buySellInfo);
               }
               break;
             case Cex.Binance:
@@ -196,7 +210,7 @@ namespace InvestmentManagement
 
                 if (!isSubOrder)
                 {
-                  BuySellInfo buySellInfo = new BuySellInfo
+                  CexBuySellInfo buySellInfo = new CexBuySellInfo
                   {
                     Plattfrom = Cex.Binance.ToString(),
                     Pair = values[(int)Spalte.C],
@@ -209,19 +223,19 @@ namespace InvestmentManagement
                     Fee = ""
                   };
 
-                  buySellInfoList.Add(buySellInfo);
+                  cexBuySellInfoList.Add(buySellInfo);
 
                 }
                 else
                 {
-                  if (buySellInfoList[buySellInfoList.Count - 1].Fee.Length > 0)
+                  if (cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee.Length > 0)
                   {
 
-                    buySellInfoList[buySellInfoList.Count - 1].Fee += "+" + values[(int)Spalte.F];
+                    cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee += "+" + values[(int)Spalte.F];
                   }
                   else
                   {
-                    buySellInfoList[buySellInfoList.Count - 1].Fee = values[(int)Spalte.F];
+                    cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee = values[(int)Spalte.F];
                   }
                 }
 
@@ -229,6 +243,82 @@ namespace InvestmentManagement
 
               break;
             case Cex.Okx:
+              break;
+            default:
+              break;
+          }
+        }
+      }
+    }
+
+    public void ExtractNetworkData(string _path, Network _network)
+    {
+      Console.WriteLine("-------------ExtractData-------------");
+
+      // Define the regular expression patterns to match numbers and non-numbers
+      string numberPattern = @"-?\d+(\.\d+)?";
+      string nonNumberPattern = @"[^\d\.]+";
+      // Create regular expression objects for both patterns
+      Regex numberRegex = new Regex(numberPattern);
+      Regex nonNumberRegex = new Regex(nonNumberPattern);
+
+      using (StreamReader reader = new StreamReader(_path))
+      {
+        while (!reader.EndOfStream)
+        {
+          string line = reader.ReadLine();
+
+          switch (_network)
+          {
+            case Network.Ethereum:
+              break;
+            case Network.Bsc:
+              { 
+              // Skip first line
+              if (line.Contains("Txhash,\"Blockno\",\"UnixTimestamp\",\"DateTime\",\"From\",\"To\",\"ContractAddress\","))
+              {
+                continue;
+              }
+
+              string[] values = line.Split(',');
+
+              NetworkInfo networkInfo = new NetworkInfo
+              {
+                Network = Network.Bsc.ToString(),
+                NetworkCurrency = "BNB",
+                Txhash = values[(int)Spalte.A], 
+                Blockno = values[(int)Spalte.B],
+                UnixTimestamp = values[(int)Spalte.C],
+                DateTime = values[(int)Spalte.D], 
+                From = values[(int)Spalte.E],
+                To = values[(int)Spalte.F],
+                ContractAddress = values[(int)Spalte.G],
+                ValueIn = values[(int)Spalte.H],
+                ValueOut = values[(int)Spalte.I],
+                TxnFeeNative = values[(int)Spalte.K],
+                TxnFeeUsd = values[(int)Spalte.L],
+                HistoricalPrice = values[(int)Spalte.M],
+                Method = values[(int)Spalte.P],
+              };
+
+              networkInfoList.Add(networkInfo);
+          }
+          break;
+            case Network.Ploygon:
+              break;
+            case Network.Fantom:
+              break;
+            case Network.Arbitrum:
+              break;
+            case Network.Optimism:
+              break;
+            case Network.Tron:
+              break;
+            case Network.Avalanche:
+              break;
+            case Network.Solana:
+              break;
+            case Network.Bitcoin:
               break;
             default:
               break;

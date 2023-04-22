@@ -32,11 +32,12 @@ namespace InvestmentManagement
     public void ExtractDataAndInsertInExcel(string _documentFolderPath, string _excelFile)
     {
       Console.WriteLine("-------------ExtractDataAndInsertInExcel-------------");
-
+      extractDataFromCSV.ExtractNetworkData(@"C:\Projekte\Unterlagen\Cryptos\Dokumente\BNB Network\export-0x2c8ac232c76498fe46811879d20ce34b92983a9e.csv", ExtractDataFromCSV.Network.Bsc);
+      InsertNetworkData(extractDataFromCSV.networkInfoList);
       GoThroughEachFolderExtract(GetFoldersUnderCryptoDocumentPath(_documentFolderPath));
       //extractDataFromCSV.ExtractData(@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Kucoin\HISTORY_634c1b3bed20b6000741be35.csv", ExtractDataFromCSV.Cex.Kucoin);
-      FormatData(ref extractDataFromCSV.buySellInfoList); 
-      InsertBuySellData(extractDataFromCSV.buySellInfoList);
+      FormatData(ref extractDataFromCSV.cexBuySellInfoList); 
+      InsertCexBuySellData(extractDataFromCSV.cexBuySellInfoList);
     }
 
 
@@ -99,16 +100,16 @@ namespace InvestmentManagement
         switch (Enum.Parse(typeof(ExtractDataFromCSV.Cex), nameOfCex))
         {
           case ExtractDataFromCSV.Cex.Mexc:
-            extractDataFromCSV.ExtractData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Mexc);
+            extractDataFromCSV.ExtractCexData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Mexc);
             break;
           case ExtractDataFromCSV.Cex.Kucoin:
-            extractDataFromCSV.ExtractData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Kucoin);
+            extractDataFromCSV.ExtractCexData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Kucoin);
             break;
           case ExtractDataFromCSV.Cex.Binance:
-            extractDataFromCSV.ExtractData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Binance);
+            extractDataFromCSV.ExtractCexData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Binance);
             break;
           case ExtractDataFromCSV.Cex.Okx:
-            extractDataFromCSV.ExtractData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Okx);
+            extractDataFromCSV.ExtractCexData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Okx);
             break;
         }
         
@@ -134,7 +135,7 @@ namespace InvestmentManagement
       File.WriteAllLines(_outputFileName, uniqueLines);
 
     }
-    void InsertBuySellData(List<BuySellInfo> _buySellInfoList)
+    void InsertCexBuySellData(List<CexBuySellInfo> _buySellInfoList)
     {
       Console.WriteLine("-------------InsertBuySellData-------------");
 
@@ -167,7 +168,45 @@ namespace InvestmentManagement
       }
 
     }
-    void FormatData(ref List<BuySellInfo> _buySellInfoList)
+    void InsertNetworkData(List<NetworkInfo> _networkInfoList)
+    {
+      Console.WriteLine("-------------InsertNetworkData-------------");
+
+      string worksheet = "NetzwerkDaten";
+
+      HandleExcel.ClearRange("A4", "Z1000", worksheet);
+
+      var cellOfDatum = HandleExcel.GetCellByName("Datum", worksheet);
+      var cellOfNetwork = HandleExcel.GetCellByName("Network", worksheet);
+      var cellOfNetwork_Currency = HandleExcel.GetCellByName("Network Currency", worksheet);
+      var cellOfTxhash = HandleExcel.GetCellByName("Txhash", worksheet);
+      var cellOfFrom = HandleExcel.GetCellByName("From", worksheet);
+      var cellOfTo = HandleExcel.GetCellByName("To", worksheet);
+      var cellOfValue_In = HandleExcel.GetCellByName("Value In", worksheet);
+      var cellOfValue_Out = HandleExcel.GetCellByName("Value Out", worksheet);
+      var cellOfTxnFeeNative = HandleExcel.GetCellByName("TxnFeeNative", worksheet);
+      var cellOfTxnFee_Usd = HandleExcel.GetCellByName("TxnFee Usd", worksheet);
+      var cellOfHistorical_Price = HandleExcel.GetCellByName("Historical Price", worksheet);
+      var cellOfMethod = HandleExcel.GetCellByName("Method", worksheet);
+
+      for (int i = 0; i < _networkInfoList.Count; i++)
+      {
+        HandleExcel.SetTextInCell(_networkInfoList[i].DateTime, cellOfDatum.cellLine + 1 + i, cellOfDatum.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkInfoList[i].Network, cellOfNetwork.cellLine + 1 + i, cellOfNetwork.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkInfoList[i].NetworkCurrency, cellOfNetwork_Currency.cellLine + 1 + i, cellOfNetwork_Currency.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkInfoList[i].Txhash, cellOfTxhash.cellLine + 1 + i, cellOfTxhash.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkInfoList[i].From, cellOfFrom.cellLine + 1 + i, cellOfFrom.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkInfoList[i].To, cellOfTo.cellLine + 1 + i, cellOfTo.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkInfoList[i].ValueIn, cellOfValue_In.cellLine + 1 + i, cellOfValue_In.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkInfoList[i].ValueOut, cellOfValue_Out.cellLine + 1 + i, cellOfValue_Out.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkInfoList[i].TxnFeeNative, cellOfTxnFeeNative.cellLine + 1 + i, cellOfTxnFeeNative.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkInfoList[i].TxnFeeUsd, cellOfTxnFee_Usd.cellLine + 1 + i, cellOfTxnFee_Usd.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkInfoList[i].HistoricalPrice, cellOfHistorical_Price.cellLine + 1 + i, cellOfHistorical_Price.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkInfoList[i].Method, cellOfMethod.cellLine + 1 + i, cellOfMethod.cellColum, worksheet);
+      }
+
+    }
+    void FormatData(ref List<CexBuySellInfo> _buySellInfoList)
     {
       for (int i = 0; i < _buySellInfoList.Count; i++)
       {
@@ -177,7 +216,7 @@ namespace InvestmentManagement
       }
     }
 
-    void FormatNumbers( BuySellInfo _buySellInfo)
+    void FormatNumbers( CexBuySellInfo _buySellInfo)
     {
       // Remove Tausender-Trennzeichen, falls vorhanden 
       _buySellInfo.Price = _buySellInfo.Price.Replace(",", "");
@@ -250,7 +289,7 @@ namespace InvestmentManagement
       }
     }
 
-    void FormatPair( BuySellInfo _buySellInfo)
+    void FormatPair( CexBuySellInfo _buySellInfo)
     {
       string pairSeperator = "/";
       switch (Enum.Parse(typeof(ExtractDataFromCSV.Cex), _buySellInfo.Plattfrom))
