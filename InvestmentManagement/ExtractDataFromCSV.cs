@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace InvestmentManagement
 {
- public class ExtractDataFromCSV
+  public class ExtractDataFromCSV
   {
     public enum Cex
     {
@@ -35,20 +35,21 @@ namespace InvestmentManagement
 
     enum Spalte
     {
-      A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R
+      A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R
     }
 
     public List<CexBuySellInfo> cexBuySellInfoList = new List<CexBuySellInfo>();
-    public List<NetworkInfo> networkInfoList = new List<NetworkInfo>();
+    public List<NetworkTxnInfo> networkTxnInfoList = new List<NetworkTxnInfo>();
+    public List<NetworkTokenTxnInfo> networkTokenTxnInfoList = new List<NetworkTokenTxnInfo>();
 
     public static DataTable GetDataFromCSV(string filePath)
     {
       DataTable data = new DataTable();
-      
+
       using (TextFieldParser parser = new TextFieldParser(filePath))
       {
         parser.TextFieldType = FieldType.Delimited;
-        parser.SetDelimiters(";",",");
+        parser.SetDelimiters(";", ",");
 
         string[] headers = parser.ReadFields();
         foreach (string header in headers)
@@ -90,7 +91,7 @@ namespace InvestmentManagement
       excelApp.Quit();
     }
 
-     public void ExtractCexData(string _path, Cex _cex )
+    public void ExtractCexData(string _path, Cex _cex)
     {
       Console.WriteLine("-------------ExtractData-------------");
 
@@ -154,7 +155,7 @@ namespace InvestmentManagement
               }
 
 
-          break;
+              break;
             case Cex.Kucoin:
               {
                 // Skip first line
@@ -251,7 +252,7 @@ namespace InvestmentManagement
       }
     }
 
-    public void ExtractNetworkData(string _path, Network _network)
+    public void ExtractNetworkTxnkData(string _path, Network _network)
     {
       Console.WriteLine("-------------ExtractData-------------");
 
@@ -273,37 +274,139 @@ namespace InvestmentManagement
             case Network.Ethereum:
               break;
             case Network.Bsc:
-              { 
-              // Skip first line
-              if (line.Contains("Txhash,\"Blockno\",\"UnixTimestamp\",\"DateTime\",\"From\",\"To\",\"ContractAddress\","))
               {
-                continue;
+
+                //line = line.Replace("\"", "");
+                //// Skip first line
+                //if (line.Contains("Txhash,Blockno,UnixTimestamp,DateTime,From,To,ContractAddress,"))
+                //{
+                //  continue;
+                //}
+
+                //string[] values = line.Split(',');
+
+
+                string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+                for (int i = 0; i < values.Length; i++)
+                {
+                  values[i] = values[i].Replace(",", "");
+
+                  values[i] = values[i].Replace("\"", "");
+                }
+
+                // Skip first line
+                if (values[0].Contains("Txhash"))
+                {
+                  continue;
+                }
+
+                NetworkTxnInfo networkInfo = new NetworkTxnInfo
+                {
+                  Network = Network.Bsc.ToString(),
+                  NetworkCurrency = "BNB",
+                  Txhash = values[(int)Spalte.A],
+                  Blockno = values[(int)Spalte.B],
+                  UnixTimestamp = values[(int)Spalte.C],
+                  DateTime = values[(int)Spalte.D],
+                  From = values[(int)Spalte.E],
+                  To = values[(int)Spalte.F],
+                  ContractAddress = values[(int)Spalte.G],
+                  ValueIn = values[(int)Spalte.H],
+                  ValueOut = values[(int)Spalte.I],
+                  TxnFeeNative = values[(int)Spalte.K],
+                  TxnFeeUsd = values[(int)Spalte.L],
+                  HistoricalPrice = values[(int)Spalte.M],
+                  Method = values[(int)Spalte.P],
+                };
+
+                networkTxnInfoList.Add(networkInfo);
               }
-
-              string[] values = line.Split(',');
-
-              NetworkInfo networkInfo = new NetworkInfo
-              {
-                Network = Network.Bsc.ToString(),
-                NetworkCurrency = "BNB",
-                Txhash = values[(int)Spalte.A], 
-                Blockno = values[(int)Spalte.B],
-                UnixTimestamp = values[(int)Spalte.C],
-                DateTime = values[(int)Spalte.D], 
-                From = values[(int)Spalte.E],
-                To = values[(int)Spalte.F],
-                ContractAddress = values[(int)Spalte.G],
-                ValueIn = values[(int)Spalte.H],
-                ValueOut = values[(int)Spalte.I],
-                TxnFeeNative = values[(int)Spalte.K],
-                TxnFeeUsd = values[(int)Spalte.L],
-                HistoricalPrice = values[(int)Spalte.M],
-                Method = values[(int)Spalte.P],
-              };
-
-              networkInfoList.Add(networkInfo);
+              break;
+            case Network.Ploygon:
+              break;
+            case Network.Fantom:
+              break;
+            case Network.Arbitrum:
+              break;
+            case Network.Optimism:
+              break;
+            case Network.Tron:
+              break;
+            case Network.Avalanche:
+              break;
+            case Network.Solana:
+              break;
+            case Network.Bitcoin:
+              break;
+            default:
+              break;
           }
-          break;
+        }
+      }
+    }
+    public void ExtractNetworkTokenTxnkData(string _path, Network _network)
+    {
+      Console.WriteLine("-------------ExtractNetworkTokenTxnkData-------------");
+
+      // Define the regular expression patterns to match numbers and non-numbers
+      string numberPattern = @"-?\d+(\.\d+)?";
+      string nonNumberPattern = @"[^\d\.]+";
+      // Create regular expression objects for both patterns
+      Regex numberRegex = new Regex(numberPattern);
+      Regex nonNumberRegex = new Regex(nonNumberPattern);
+
+      using (StreamReader reader = new StreamReader(_path))
+      {
+        while (!reader.EndOfStream)
+        {
+          string line = reader.ReadLine();
+
+          //line = line.Replace("\"", "");
+
+          switch (_network)
+          {
+            case Network.Ethereum:
+              break;
+            case Network.Bsc:
+              {
+                // Skip first line
+                //if (line.Contains("Txhash,Blockno,UnixTimestamp,DateTime,From,To,"))
+                //{
+                //  continue;
+                //}
+                string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+                for (int i = 0; i < values.Length; i++)
+                {
+                  values[i] = values[i].Replace(",", "");
+
+                  values[i] = values[i].Replace("\"", "");
+                }
+
+                // Skip first line
+                if (values[0].Contains("Txhash"))
+                {
+                  continue;
+                }
+                NetworkTokenTxnInfo networkTokentxnInfo = new NetworkTokenTxnInfo
+                {
+                  Network = Network.Bsc.ToString(),
+                  NetworkCurrency = "BNB",
+                  Txhash = values[(int)Spalte.A],
+                  Blockno = values[(int)Spalte.B],
+                  UnixTimestamp = values[(int)Spalte.C],
+                  DateTime = values[(int)Spalte.D],
+                  From = values[(int)Spalte.E],
+                  To = values[(int)Spalte.F],
+                  TokenAmount = values[(int)Spalte.G],
+                  UsdValueDayOfTx = values[(int)Spalte.H],
+                  ContractAddress = values[(int)Spalte.I],
+                  TokenName = values[(int)Spalte.J],
+                  TokenSymbol = values[(int)Spalte.K]
+                };
+
+                networkTokenTxnInfoList.Add(networkTokentxnInfo);
+              }
+              break;
             case Network.Ploygon:
               break;
             case Network.Fantom:

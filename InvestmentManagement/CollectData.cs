@@ -32,12 +32,15 @@ namespace InvestmentManagement
     public void ExtractDataAndInsertInExcel(string _documentFolderPath, string _excelFile)
     {
       Console.WriteLine("-------------ExtractDataAndInsertInExcel-------------");
-      extractDataFromCSV.ExtractNetworkData(@"C:\Projekte\Unterlagen\Cryptos\Dokumente\BNB Network\export-0x2c8ac232c76498fe46811879d20ce34b92983a9e.csv", ExtractDataFromCSV.Network.Bsc);
-      InsertNetworkData(extractDataFromCSV.networkInfoList);
-      GoThroughEachFolderExtract(GetFoldersUnderCryptoDocumentPath(_documentFolderPath));
+      extractDataFromCSV.ExtractNetworkTxnkData(@"C:\Projekte\Unterlagen\Cryptos\Dokumente\BNB Network\export-0x2c8ac232c76498fe46811879d20ce34b92983a9e.csv", ExtractDataFromCSV.Network.Bsc);
+      
+      extractDataFromCSV.ExtractNetworkTokenTxnkData(@"C:\Projekte\Unterlagen\Cryptos\Dokumente\BNB Network\export-address-token-0x2c8ac232c76498fe46811879d20ce34b92983a9e.csv", ExtractDataFromCSV.Network.Bsc);
+      InsertNetworkTxnData(extractDataFromCSV.networkTxnInfoList);
+      InsertNetworkTokenTxnData(extractDataFromCSV.networkTokenTxnInfoList);
+      //GoThroughEachFolderExtract(GetFoldersUnderCryptoDocumentPath(_documentFolderPath));
       //extractDataFromCSV.ExtractData(@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Kucoin\HISTORY_634c1b3bed20b6000741be35.csv", ExtractDataFromCSV.Cex.Kucoin);
-      FormatData(ref extractDataFromCSV.cexBuySellInfoList); 
-      InsertCexBuySellData(extractDataFromCSV.cexBuySellInfoList);
+      // FormatData(ref extractDataFromCSV.cexBuySellInfoList); 
+      // InsertCexBuySellData(extractDataFromCSV.cexBuySellInfoList);
     }
 
 
@@ -168,11 +171,11 @@ namespace InvestmentManagement
       }
 
     }
-    void InsertNetworkData(List<NetworkInfo> _networkInfoList)
+    void InsertNetworkTxnData(List<NetworkTxnInfo> _networkTxnInfoList)
     {
       Console.WriteLine("-------------InsertNetworkData-------------");
 
-      string worksheet = "NetzwerkDaten";
+      string worksheet = "NetzwerkTxnDaten";
 
       HandleExcel.ClearRange("A4", "Z1000", worksheet);
 
@@ -189,20 +192,56 @@ namespace InvestmentManagement
       var cellOfHistorical_Price = HandleExcel.GetCellByName("Historical Price", worksheet);
       var cellOfMethod = HandleExcel.GetCellByName("Method", worksheet);
 
-      for (int i = 0; i < _networkInfoList.Count; i++)
+      for (int i = 0; i < _networkTxnInfoList.Count; i++)
       {
-        HandleExcel.SetTextInCell(_networkInfoList[i].DateTime, cellOfDatum.cellLine + 1 + i, cellOfDatum.cellColum, worksheet);
-        HandleExcel.SetTextInCell(_networkInfoList[i].Network, cellOfNetwork.cellLine + 1 + i, cellOfNetwork.cellColum, worksheet);
-        HandleExcel.SetTextInCell(_networkInfoList[i].NetworkCurrency, cellOfNetwork_Currency.cellLine + 1 + i, cellOfNetwork_Currency.cellColum, worksheet);
-        HandleExcel.SetTextInCell(_networkInfoList[i].Txhash, cellOfTxhash.cellLine + 1 + i, cellOfTxhash.cellColum, worksheet);
-        HandleExcel.SetTextInCell(_networkInfoList[i].From, cellOfFrom.cellLine + 1 + i, cellOfFrom.cellColum, worksheet);
-        HandleExcel.SetTextInCell(_networkInfoList[i].To, cellOfTo.cellLine + 1 + i, cellOfTo.cellColum, worksheet);
-        HandleExcel.SetTextInCell(_networkInfoList[i].ValueIn, cellOfValue_In.cellLine + 1 + i, cellOfValue_In.cellColum, worksheet);
-        HandleExcel.SetTextInCell(_networkInfoList[i].ValueOut, cellOfValue_Out.cellLine + 1 + i, cellOfValue_Out.cellColum, worksheet);
-        HandleExcel.SetTextInCell(_networkInfoList[i].TxnFeeNative, cellOfTxnFeeNative.cellLine + 1 + i, cellOfTxnFeeNative.cellColum, worksheet);
-        HandleExcel.SetTextInCell(_networkInfoList[i].TxnFeeUsd, cellOfTxnFee_Usd.cellLine + 1 + i, cellOfTxnFee_Usd.cellColum, worksheet);
-        HandleExcel.SetTextInCell(_networkInfoList[i].HistoricalPrice, cellOfHistorical_Price.cellLine + 1 + i, cellOfHistorical_Price.cellColum, worksheet);
-        HandleExcel.SetTextInCell(_networkInfoList[i].Method, cellOfMethod.cellLine + 1 + i, cellOfMethod.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].DateTime, cellOfDatum.cellLine + 1 + i, cellOfDatum.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].Network, cellOfNetwork.cellLine + 1 + i, cellOfNetwork.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].NetworkCurrency, cellOfNetwork_Currency.cellLine + 1 + i, cellOfNetwork_Currency.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].Txhash, cellOfTxhash.cellLine + 1 + i, cellOfTxhash.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].From, cellOfFrom.cellLine + 1 + i, cellOfFrom.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].To, cellOfTo.cellLine + 1 + i, cellOfTo.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].ValueIn, cellOfValue_In.cellLine + 1 + i, cellOfValue_In.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].ValueOut, cellOfValue_Out.cellLine + 1 + i, cellOfValue_Out.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].TxnFeeNative, cellOfTxnFeeNative.cellLine + 1 + i, cellOfTxnFeeNative.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].TxnFeeUsd, cellOfTxnFee_Usd.cellLine + 1 + i, cellOfTxnFee_Usd.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].HistoricalPrice, cellOfHistorical_Price.cellLine + 1 + i, cellOfHistorical_Price.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].Method, cellOfMethod.cellLine + 1 + i, cellOfMethod.cellColum, worksheet);
+      }
+
+    }
+    void InsertNetworkTokenTxnData(List<NetworkTokenTxnInfo> _networkTokenTxnInfoList)
+    {
+      Console.WriteLine("-------------InsertNetworkTokenTxnData-------------");
+
+      string worksheet = "NetzwerkTokenTxnDaten";
+
+      HandleExcel.ClearRange("A4", "Z1000", worksheet);
+
+      var cellOfDatum = HandleExcel.GetCellByName("Datum", worksheet);
+      var cellOfNetwork = HandleExcel.GetCellByName("Network", worksheet);
+      var cellOfNetwork_Currency = HandleExcel.GetCellByName("Network Currency", worksheet);
+      var cellOfTxhash = HandleExcel.GetCellByName("Txhash", worksheet);
+      var cellOfFrom = HandleExcel.GetCellByName("From", worksheet);
+      var cellOfTo = HandleExcel.GetCellByName("To", worksheet);
+      var cellOfTokenAmount = HandleExcel.GetCellByName("Token Amount", worksheet);
+      var cellOfUsdValueDayOfTx = HandleExcel.GetCellByName("Usd Value Day Of Tx", worksheet);
+      var cellOfContractAddress = HandleExcel.GetCellByName("Contract Address", worksheet);
+      var cellOfTokenName = HandleExcel.GetCellByName("Token Name", worksheet);
+      var cellOfTokenSymbol = HandleExcel.GetCellByName("Token Symbol", worksheet);
+
+      for (int i = 0; i < _networkTokenTxnInfoList.Count; i++)
+      {
+        HandleExcel.SetTextInCell(_networkTokenTxnInfoList[i].DateTime, cellOfDatum.cellLine + 1 + i, cellOfDatum.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTokenTxnInfoList[i].Network, cellOfNetwork.cellLine + 1 + i, cellOfNetwork.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTokenTxnInfoList[i].NetworkCurrency, cellOfNetwork_Currency.cellLine + 1 + i, cellOfNetwork_Currency.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTokenTxnInfoList[i].Txhash, cellOfTxhash.cellLine + 1 + i, cellOfTxhash.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTokenTxnInfoList[i].From, cellOfFrom.cellLine + 1 + i, cellOfFrom.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTokenTxnInfoList[i].To, cellOfTo.cellLine + 1 + i, cellOfTo.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTokenTxnInfoList[i].TokenAmount, cellOfTokenAmount.cellLine + 1 + i, cellOfTokenAmount.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTokenTxnInfoList[i].UsdValueDayOfTx, cellOfUsdValueDayOfTx.cellLine + 1 + i, cellOfUsdValueDayOfTx.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTokenTxnInfoList[i].ContractAddress, cellOfContractAddress.cellLine + 1 + i, cellOfContractAddress.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTokenTxnInfoList[i].TokenName, cellOfTokenName.cellLine + 1 + i, cellOfTokenName.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTokenTxnInfoList[i].TokenSymbol, cellOfTokenSymbol.cellLine + 1 + i, cellOfTokenSymbol.cellColum, worksheet);
       }
 
     }

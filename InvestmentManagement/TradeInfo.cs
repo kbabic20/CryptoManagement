@@ -22,7 +22,7 @@ namespace InvestmentManagement
   }
 
 
-  public class NetworkInfo
+  public class NetworkTxnInfo
   {
     public string Network { get; set; }
     public string NetworkCurrency { get; set; }
@@ -39,5 +39,21 @@ namespace InvestmentManagement
     public string TxnFeeUsd { get; set; }
     public string HistoricalPrice { get; set; }
     public string Method { get; set; }
+  }
+  public class NetworkTokenTxnInfo
+  {
+    public string Network { get; set; }
+    public string NetworkCurrency { get; set; }
+    public string Txhash { get; set; }
+    public string Blockno { get; set; }
+    public string UnixTimestamp { get; set; }
+    public string DateTime { get; set; }
+    public string From { get; set; }
+    public string To { get; set; }
+    public string TokenAmount { get; set; }
+    public string UsdValueDayOfTx { get; set; }
+    public string ContractAddress { get; set; }
+    public string TokenName { get; set; }
+    public string TokenSymbol { get; set; }
   }
 }
