@@ -55,5 +55,20 @@ namespace InvestmentManagement
     public string ContractAddress { get; set; }
     public string TokenName { get; set; }
     public string TokenSymbol { get; set; }
+
+
+
+    public class Portfolio
+    {
+      public string Name { get; set; }
+      public string Symbol { get; set; }
+      public string ContractAddress { get; set; }
+      public string CoinGeckoApiID { get; set; }
+      public string Network { get; set; }
+      public decimal AmountHolding { get; set; }
+      public decimal AvgBuyPrice { get; set; }
+      public decimal AvgGain { get; set; }
+      public decimal CurrPrice { get; set; }
+    }
   }
 }

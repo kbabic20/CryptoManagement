@@ -23,7 +23,7 @@ namespace InvestmentManagement
     {
       Ethereum = 1,
       Bsc,
-      Ploygon,
+      Polygon,
       Fantom,
       Arbitrum,
       Optimism,
@@ -252,99 +252,359 @@ namespace InvestmentManagement
       }
     }
 
-    public void ExtractNetworkTxnkData(string _path, Network _network)
+    public void ExtractNetworkTxnData(string _path, Network _network)
     {
-      Console.WriteLine("-------------ExtractData-------------");
-
-      // Define the regular expression patterns to match numbers and non-numbers
-      string numberPattern = @"-?\d+(\.\d+)?";
-      string nonNumberPattern = @"[^\d\.]+";
-      // Create regular expression objects for both patterns
-      Regex numberRegex = new Regex(numberPattern);
-      Regex nonNumberRegex = new Regex(nonNumberPattern);
-
+      Console.WriteLine("-------------ExtractNetworkTxnData-------------");
+      string networkCurrency = "";
       using (StreamReader reader = new StreamReader(_path))
       {
         while (!reader.EndOfStream)
         {
           string line = reader.ReadLine();
 
-          switch (_network)
+          //switch (_network)
+          //{
+          //  case Network.Ethereum:
+          //    {
+          //      string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+          //      for (int i = 0; i < values.Length; i++)
+          //      {
+          //        values[i] = values[i].Replace(",", "");
+
+          //        values[i] = values[i].Replace("\"", "");
+          //      }
+
+          //      // Skip first line
+          //      if (values[0].Contains("Txhash"))
+          //      {
+          //        networkCurrency = values[7].Substring(9, values[7].Length - 2 - 8);
+          //        continue;
+          //      }
+
+          //      NetworkTxnInfo networkInfo = new NetworkTxnInfo
+          //      {
+          //        Network = Network.Ethereum.ToString(),
+          //        NetworkCurrency = networkCurrency,
+          //        Txhash = values[(int)Spalte.A],
+          //        Blockno = values[(int)Spalte.B],
+          //        UnixTimestamp = values[(int)Spalte.C],
+          //        DateTime = values[(int)Spalte.D],
+          //        From = values[(int)Spalte.E],
+          //        To = values[(int)Spalte.F],
+          //        ContractAddress = values[(int)Spalte.G],
+          //        ValueIn = values[(int)Spalte.H],
+          //        ValueOut = values[(int)Spalte.I],
+          //        TxnFeeNative = values[(int)Spalte.K],
+          //        TxnFeeUsd = values[(int)Spalte.L],
+          //        HistoricalPrice = values[(int)Spalte.M],
+          //        Method = values[(int)Spalte.P],
+          //      };
+
+          //      networkTxnInfoList.Add(networkInfo);
+          //    }
+          //    break;
+          //  case Network.Bsc:
+          //    {
+
+          //      //line = line.Replace("\"", "");
+          //      //// Skip first line
+          //      //if (line.Contains("Txhash,Blockno,UnixTimestamp,DateTime,From,To,ContractAddress,"))
+          //      //{
+          //      //  continue;
+          //      //}
+
+          //      //string[] values = line.Split(',');
+
+
+          //      string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+          //      for (int i = 0; i < values.Length; i++)
+          //      {
+          //        values[i] = values[i].Replace(",", "");
+
+          //        values[i] = values[i].Replace("\"", "");
+          //      }
+
+          //      // Skip first line
+          //      if (values[0].Contains("Txhash"))
+          //      {
+          //        networkCurrency = values[7].Substring(9, values[7].Length - 2 - 8);
+          //        continue;
+          //      }
+
+          //      NetworkTxnInfo networkInfo = new NetworkTxnInfo
+          //      {
+          //        Network = Network.Bsc.ToString(),
+          //        NetworkCurrency = networkCurrency,
+          //        Txhash = values[(int)Spalte.A],
+          //        Blockno = values[(int)Spalte.B],
+          //        UnixTimestamp = values[(int)Spalte.C],
+          //        DateTime = values[(int)Spalte.D],
+          //        From = values[(int)Spalte.E],
+          //        To = values[(int)Spalte.F],
+          //        ContractAddress = values[(int)Spalte.G],
+          //        ValueIn = values[(int)Spalte.H],
+          //        ValueOut = values[(int)Spalte.I],
+          //        TxnFeeNative = values[(int)Spalte.K],
+          //        TxnFeeUsd = values[(int)Spalte.L],
+          //        HistoricalPrice = values[(int)Spalte.M],
+          //        Method = values[(int)Spalte.P],
+          //      };
+
+          //      networkTxnInfoList.Add(networkInfo);
+          //    }
+          //    break;
+          //  case Network.Polygon:
+          //    {
+          //      string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+          //      for (int i = 0; i < values.Length; i++)
+          //      {
+          //        values[i] = values[i].Replace(",", "");
+
+          //        values[i] = values[i].Replace("\"", "");
+          //      }
+
+
+          //      // Skip first line
+          //      if (values[0].Contains("Txhash"))
+          //      {
+          //        networkCurrency = values[7].Substring(9, values[7].Length - 2 - 8);
+          //        continue;
+          //      }
+
+          //      NetworkTxnInfo networkInfo = new NetworkTxnInfo
+          //      {
+          //        Network = Network.Polygon.ToString(),
+          //        NetworkCurrency = networkCurrency,
+          //        Txhash = values[(int)Spalte.A],
+          //        Blockno = values[(int)Spalte.B],
+          //        UnixTimestamp = values[(int)Spalte.C],
+          //        DateTime = values[(int)Spalte.D],
+          //        From = values[(int)Spalte.E],
+          //        To = values[(int)Spalte.F],
+          //        ContractAddress = values[(int)Spalte.G],
+          //        ValueIn = values[(int)Spalte.H],
+          //        ValueOut = values[(int)Spalte.I],
+          //        TxnFeeNative = values[(int)Spalte.K],
+          //        TxnFeeUsd = values[(int)Spalte.L],
+          //        HistoricalPrice = values[(int)Spalte.M],
+          //        Method = values[(int)Spalte.P],
+          //      };
+
+          //      networkTxnInfoList.Add(networkInfo);
+          //    }
+          //    break;
+          //  case Network.Fantom:
+          //    {
+          //      string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+          //      for (int i = 0; i < values.Length; i++)
+          //      {
+          //        values[i] = values[i].Replace(",", "");
+
+          //        values[i] = values[i].Replace("\"", "");
+          //      }
+
+
+          //      // Skip first line
+          //      if (values[0].Contains("Txhash"))
+          //      {
+          //        networkCurrency = values[7].Substring(9, values[7].Length - 2 - 8);
+          //        continue;
+          //      }
+
+          //      NetworkTxnInfo networkInfo = new NetworkTxnInfo
+          //      {
+          //        Network = Network.Fantom.ToString(),
+          //        NetworkCurrency = networkCurrency,
+          //        Txhash = values[(int)Spalte.A],
+          //        Blockno = values[(int)Spalte.B],
+          //        UnixTimestamp = values[(int)Spalte.C],
+          //        DateTime = values[(int)Spalte.D],
+          //        From = values[(int)Spalte.E],
+          //        To = values[(int)Spalte.F],
+          //        ContractAddress = values[(int)Spalte.G],
+          //        ValueIn = values[(int)Spalte.H],
+          //        ValueOut = values[(int)Spalte.I],
+          //        TxnFeeNative = values[(int)Spalte.K],
+          //        TxnFeeUsd = values[(int)Spalte.L],
+          //        HistoricalPrice = values[(int)Spalte.M],
+          //        Method = values[(int)Spalte.P],
+          //      };
+
+          //      networkTxnInfoList.Add(networkInfo);
+          //    }
+          //    break;
+          //  case Network.Arbitrum:
+          //    {
+          //      string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+          //      for (int i = 0; i < values.Length; i++)
+          //      {
+          //        values[i] = values[i].Replace(",", "");
+
+          //        values[i] = values[i].Replace("\"", "");
+          //      }
+
+
+          //      // Skip first line
+          //      if (values[0].Contains("Txhash"))
+          //      {
+          //        networkCurrency = values[7].Substring(9, values[7].Length - 2 - 8);
+          //        continue;
+          //      }
+
+          //      NetworkTxnInfo networkInfo = new NetworkTxnInfo
+          //      {
+          //        Network = Network.Arbitrum.ToString(),
+          //        NetworkCurrency = networkCurrency,
+          //        Txhash = values[(int)Spalte.A],
+          //        Blockno = values[(int)Spalte.B],
+          //        UnixTimestamp = values[(int)Spalte.C],
+          //        DateTime = values[(int)Spalte.D],
+          //        From = values[(int)Spalte.E],
+          //        To = values[(int)Spalte.F],
+          //        ContractAddress = values[(int)Spalte.G],
+          //        ValueIn = values[(int)Spalte.H],
+          //        ValueOut = values[(int)Spalte.I],
+          //        TxnFeeNative = values[(int)Spalte.K],
+          //        TxnFeeUsd = values[(int)Spalte.L],
+          //        HistoricalPrice = values[(int)Spalte.M],
+          //        Method = values[(int)Spalte.P],
+          //      };
+
+          //      networkTxnInfoList.Add(networkInfo);
+          //    }
+          //    break;
+          //  case Network.Optimism:
+          //    {
+          //      string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+          //      for (int i = 0; i < values.Length; i++)
+          //      {
+          //        values[i] = values[i].Replace(",", "");
+
+          //        values[i] = values[i].Replace("\"", "");
+          //      }
+
+
+          //      // Skip first line
+          //      if (values[0].Contains("Txhash"))
+          //      {
+          //        networkCurrency = values[7].Substring(9, values[7].Length - 2 - 8);
+          //        continue;
+          //      }
+
+          //      NetworkTxnInfo networkInfo = new NetworkTxnInfo
+          //      {
+          //        Network = Network.Optimism.ToString(),
+          //        NetworkCurrency = networkCurrency,
+          //        Txhash = values[(int)Spalte.A],
+          //        Blockno = values[(int)Spalte.B],
+          //        UnixTimestamp = values[(int)Spalte.C],
+          //        DateTime = values[(int)Spalte.D],
+          //        From = values[(int)Spalte.E],
+          //        To = values[(int)Spalte.F],
+          //        ContractAddress = values[(int)Spalte.G],
+          //        ValueIn = values[(int)Spalte.H],
+          //        ValueOut = values[(int)Spalte.I],
+          //        TxnFeeNative = values[(int)Spalte.K],
+          //        TxnFeeUsd = values[(int)Spalte.L],
+          //        HistoricalPrice = values[(int)Spalte.M],
+          //        Method = values[(int)Spalte.P],
+          //      };
+
+          //      networkTxnInfoList.Add(networkInfo);
+          //    }
+          //    break;
+          //  case Network.Tron:
+          //    break;
+          //  case Network.Avalanche:
+          //    {
+          //      string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+          //      for (int i = 0; i < values.Length; i++)
+          //      {
+          //        values[i] = values[i].Replace(",", "");
+
+          //        values[i] = values[i].Replace("\"", "");
+          //      }
+
+
+          //      // Skip first line
+          //      if (values[0].Contains("Txhash"))
+          //      {
+          //        networkCurrency = values[7].Substring(9, values[7].Length - 2 - 8);
+          //        continue;
+          //      }
+
+          //      NetworkTxnInfo networkInfo = new NetworkTxnInfo
+          //      {
+          //        Network = Network.Avalanche.ToString(),
+          //        NetworkCurrency = networkCurrency,
+          //        Txhash = values[(int)Spalte.A],
+          //        Blockno = values[(int)Spalte.B],
+          //        UnixTimestamp = values[(int)Spalte.C],
+          //        DateTime = values[(int)Spalte.D],
+          //        From = values[(int)Spalte.E],
+          //        To = values[(int)Spalte.F],
+          //        ContractAddress = values[(int)Spalte.G],
+          //        ValueIn = values[(int)Spalte.H],
+          //        ValueOut = values[(int)Spalte.I],
+          //        TxnFeeNative = values[(int)Spalte.K],
+          //        TxnFeeUsd = values[(int)Spalte.L],
+          //        HistoricalPrice = values[(int)Spalte.M],
+          //        Method = values[(int)Spalte.P],
+          //      };
+
+          //      networkTxnInfoList.Add(networkInfo);
+          //    }
+          //    break;
+          //  case Network.Solana:
+          //    break;
+          //  case Network.Bitcoin:
+          //    break;
+          //  default:
+          //    break;
+          //}
+
+
           {
-            case Network.Ethereum:
-              break;
-            case Network.Bsc:
-              {
+            string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+            for (int i = 0; i < values.Length; i++)
+            {
+              values[i] = values[i].Replace(",", "");
 
-                //line = line.Replace("\"", "");
-                //// Skip first line
-                //if (line.Contains("Txhash,Blockno,UnixTimestamp,DateTime,From,To,ContractAddress,"))
-                //{
-                //  continue;
-                //}
+              values[i] = values[i].Replace("\"", "");
+            }
 
-                //string[] values = line.Split(',');
+            // Skip first line
+            if (values[0].Contains("Txhash"))
+            {
+              networkCurrency = values[7].Substring(9, values[7].Length - 2 - 8);
+              continue;
+            }
 
+            NetworkTxnInfo networkInfo = new NetworkTxnInfo
+            {
+              Network = _network.ToString(),
+              NetworkCurrency = networkCurrency,
+              Txhash = values[(int)Spalte.A],
+              Blockno = values[(int)Spalte.B],
+              UnixTimestamp = values[(int)Spalte.C],
+              DateTime = values[(int)Spalte.D],
+              From = values[(int)Spalte.E],
+              To = values[(int)Spalte.F],
+              ContractAddress = values[(int)Spalte.G],
+              ValueIn = values[(int)Spalte.H],
+              ValueOut = values[(int)Spalte.I],
+              TxnFeeNative = values[(int)Spalte.K],
+              TxnFeeUsd = values[(int)Spalte.L],
+              HistoricalPrice = values[(int)Spalte.M],
+              Method = values[(int)Spalte.P],
+            };
 
-                string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
-                for (int i = 0; i < values.Length; i++)
-                {
-                  values[i] = values[i].Replace(",", "");
-
-                  values[i] = values[i].Replace("\"", "");
-                }
-
-                // Skip first line
-                if (values[0].Contains("Txhash"))
-                {
-                  continue;
-                }
-
-                NetworkTxnInfo networkInfo = new NetworkTxnInfo
-                {
-                  Network = Network.Bsc.ToString(),
-                  NetworkCurrency = "BNB",
-                  Txhash = values[(int)Spalte.A],
-                  Blockno = values[(int)Spalte.B],
-                  UnixTimestamp = values[(int)Spalte.C],
-                  DateTime = values[(int)Spalte.D],
-                  From = values[(int)Spalte.E],
-                  To = values[(int)Spalte.F],
-                  ContractAddress = values[(int)Spalte.G],
-                  ValueIn = values[(int)Spalte.H],
-                  ValueOut = values[(int)Spalte.I],
-                  TxnFeeNative = values[(int)Spalte.K],
-                  TxnFeeUsd = values[(int)Spalte.L],
-                  HistoricalPrice = values[(int)Spalte.M],
-                  Method = values[(int)Spalte.P],
-                };
-
-                networkTxnInfoList.Add(networkInfo);
-              }
-              break;
-            case Network.Ploygon:
-              break;
-            case Network.Fantom:
-              break;
-            case Network.Arbitrum:
-              break;
-            case Network.Optimism:
-              break;
-            case Network.Tron:
-              break;
-            case Network.Avalanche:
-              break;
-            case Network.Solana:
-              break;
-            case Network.Bitcoin:
-              break;
-            default:
-              break;
+            networkTxnInfoList.Add(networkInfo);
           }
         }
       }
     }
-    public void ExtractNetworkTokenTxnkData(string _path, Network _network)
+    public void ExtractNetworkTokenTxnData(string _path, Network _network)
     {
       Console.WriteLine("-------------ExtractNetworkTokenTxnkData-------------");
 
@@ -407,7 +667,7 @@ namespace InvestmentManagement
                 networkTokenTxnInfoList.Add(networkTokentxnInfo);
               }
               break;
-            case Network.Ploygon:
+            case Network.Polygon:
               break;
             case Network.Fantom:
               break;

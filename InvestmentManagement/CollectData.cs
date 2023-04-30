@@ -10,6 +10,16 @@ using System.Collections;
 
 namespace InvestmentManagement
 {
+  public enum NetworkCurr
+  {
+    ETH,
+    BNB,
+    BITCOIN,
+    MATIC,
+    FANTOM,
+
+  }
+
   public class CollectData
   {
 
@@ -20,27 +30,38 @@ namespace InvestmentManagement
     Regex numberRegex = new Regex(numberPattern);
     Regex nonNumberRegex = new Regex(nonNumberPattern);
     ExtractDataFromCSV extractDataFromCSV = new ExtractDataFromCSV();
+    List<string> csvFolders = new List<string>();
+    string csvMergeFileName = "Alle Transaktionen.csv";
 
     public void MergeFiles(string _documentFolderPath)
     {
       Console.WriteLine("-------------MergeFiles-------------");
 
-      GoThroughEachFolderMerge(GetFoldersUnderCryptoDocumentPath(_documentFolderPath));
+      //GoThroughEachFolderMerge(GetFoldersUnderCryptoDocumentPath(_documentFolderPath));
+      //csvFolders = FindCsvFolders(_documentFolderPath);
+      //for (int i = 0; i < csvFolders.Count; i++)
+      //{
+      //  Console.WriteLine("csvFolders: " + csvFolders[i]);
+      //}
 
+      GoThroughEachFolderMerge(FindCsvFolders(_documentFolderPath));
     }
 
     public void ExtractDataAndInsertInExcel(string _documentFolderPath, string _excelFile)
     {
       Console.WriteLine("-------------ExtractDataAndInsertInExcel-------------");
-      extractDataFromCSV.ExtractNetworkTxnkData(@"C:\Projekte\Unterlagen\Cryptos\Dokumente\BNB Network\export-0x2c8ac232c76498fe46811879d20ce34b92983a9e.csv", ExtractDataFromCSV.Network.Bsc);
       
-      extractDataFromCSV.ExtractNetworkTokenTxnkData(@"C:\Projekte\Unterlagen\Cryptos\Dokumente\BNB Network\export-address-token-0x2c8ac232c76498fe46811879d20ce34b92983a9e.csv", ExtractDataFromCSV.Network.Bsc);
+      //extractDataFromCSV.ExtractNetworkTxnData(@"C:\Projekte\Unterlagen\Cryptos\Dokumente\BNB Network\export-0x2c8ac232c76498fe46811879d20ce34b92983a9e.csv", ExtractDataFromCSV.Network.Bsc);
+      GoThroughEachNetworkTxnFolderExtract(FindFolders(_documentFolderPath, "Transaktionen"));
+      GoThroughEachNetworkTokenTxnFolderExtract(FindFolders(_documentFolderPath, "Token Transaktionen"));
+      GoThroughEachCexFolderExtract(FindFolders(_documentFolderPath, "Käufe-Verkäufe"));
+      //extractDataFromCSV.ExtractNetworkTokenTxnData(@"C:\Projekte\Unterlagen\Cryptos\Dokumente\BNB Network\export-address-token-0x2c8ac232c76498fe46811879d20ce34b92983a9e.csv", ExtractDataFromCSV.Network.Bsc);
       InsertNetworkTxnData(extractDataFromCSV.networkTxnInfoList);
       InsertNetworkTokenTxnData(extractDataFromCSV.networkTokenTxnInfoList);
       //GoThroughEachFolderExtract(GetFoldersUnderCryptoDocumentPath(_documentFolderPath));
       //extractDataFromCSV.ExtractData(@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Kucoin\HISTORY_634c1b3bed20b6000741be35.csv", ExtractDataFromCSV.Cex.Kucoin);
       // FormatData(ref extractDataFromCSV.cexBuySellInfoList); 
-      // InsertCexBuySellData(extractDataFromCSV.cexBuySellInfoList);
+       InsertCexBuySellData(extractDataFromCSV.cexBuySellInfoList);
     }
 
 
@@ -55,7 +76,36 @@ namespace InvestmentManagement
 
       return dirs;
     }
+    public static List<string> FindCsvFolders(string targetFolder)
+    {
+      var csvFolders = new List<string>();
 
+      // Durchsucht alle Unterordner des Zielordners rekursiv
+      foreach (string dir in Directory.GetDirectories(targetFolder, "*", SearchOption.AllDirectories))
+      {
+        // Überprüft, ob der Ordner den Namen "Einzelne CSV Files" hat
+        if (Path.GetFileName(dir) == "Einzelne CSV Files")
+        {
+          csvFolders.Add(dir); // Fügt den Ordnerpfad zur Liste hinzu
+        }
+      }
+      return csvFolders;
+    }
+    public static List<string> FindFolders(string _rootFolder, string _targetFolder)
+    {
+      var csvFolders = new List<string>();
+
+      // Durchsucht alle Unterordner des Zielordners rekursiv
+      foreach (string dir in Directory.GetDirectories(_rootFolder, "*", SearchOption.AllDirectories))
+      {
+        // Überprüft, ob der Ordner den Namen _targetFolder hat
+        if (Path.GetFileName(dir) == _targetFolder)
+        {
+          csvFolders.Add(dir); // Fügt den Ordnerpfad zur Liste hinzu
+        }
+      }
+      return csvFolders;
+    }
     void GoThroughEachFolderMerge(string[] _dirs)
     {
       string nameOfCex = "";
@@ -65,8 +115,8 @@ namespace InvestmentManagement
         string[] split = _dirs[i].Split('\\');
 
         string dirBuySell = _dirs[i] + "\\Käufe-Verkäufe";
-        string csvFiles = dirBuySell + "\\Einzelne CSV Files";
-        string[] fileNames = Directory.GetFiles(csvFiles);
+        string csvFilesFolder = dirBuySell + "\\Einzelne CSV Files";
+        string[] fileNames = Directory.GetFiles(csvFilesFolder);
         string outputfile = dirBuySell + "\\Alle Transaktionen.csv";
         char csvSeperator = ',';
         nameOfCex = split[split.Length - 1];
@@ -88,34 +138,82 @@ namespace InvestmentManagement
         }
       }
     }
+    void GoThroughEachFolderMerge(List<string> _dirs)
+    {
 
-    void GoThroughEachFolderExtract(string[] _dirs)
+      for (int i = 0; i < _dirs.Count; i++)
+      {
+
+        string[] fileNames = Directory.GetFiles(_dirs[i]);
+
+        string parentPath = Path.GetDirectoryName(_dirs[i]);
+        string outputfile = parentPath + "\\" + csvMergeFileName;
+
+        MergeFilesToOne(fileNames, outputfile);
+      }
+    }
+
+    void GoThroughEachCexFolderExtract(List<string> _dirs)
     {
       string nameOfCex = "";
       string csvFile = "Käufe-Verkäufe\\Alle Transaktionen.csv";
 
-      for (int i = 0; i < _dirs.Length; i++)
+      for (int i = 0; i < _dirs.Count; i++)
       {
         string[] split = _dirs[i].Split('\\');
 
-        nameOfCex = split[split.Length - 1];
+        nameOfCex = split[split.Length - 2];
 
         switch (Enum.Parse(typeof(ExtractDataFromCSV.Cex), nameOfCex))
         {
           case ExtractDataFromCSV.Cex.Mexc:
-            extractDataFromCSV.ExtractCexData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Mexc);
+            extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Mexc);
             break;
           case ExtractDataFromCSV.Cex.Kucoin:
-            extractDataFromCSV.ExtractCexData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Kucoin);
+            extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Kucoin);
             break;
           case ExtractDataFromCSV.Cex.Binance:
-            extractDataFromCSV.ExtractCexData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Binance);
+            extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Binance);
             break;
           case ExtractDataFromCSV.Cex.Okx:
-            extractDataFromCSV.ExtractCexData(_dirs[i] + csvFile, ExtractDataFromCSV.Cex.Okx);
+            extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Okx);
             break;
         }
         
+      }
+    }
+    void GoThroughEachNetworkTxnFolderExtract(List<string> _dirs)
+    {
+      string nameOfNetwork = "";
+      string csvFile = "\\Alle Transaktionen.csv";
+
+      for (int i = 0; i < _dirs.Count; i++)
+      {
+        string[] split = _dirs[i].Split('\\');
+
+        nameOfNetwork = split[split.Length - 2].Replace(" Network", "");
+
+
+        Enum.TryParse( nameOfNetwork,out ExtractDataFromCSV.Network network);
+
+        extractDataFromCSV.ExtractNetworkTxnData(_dirs[i] + "\\" + csvMergeFileName, network);
+      }
+    }
+    void GoThroughEachNetworkTokenTxnFolderExtract(List<string> _dirs)
+    {
+      string nameOfNetwork = "";
+      string csvFile = "\\Alle Transaktionen.csv";
+
+      for (int i = 0; i < _dirs.Count; i++)
+      {
+        string[] split = _dirs[i].Split('\\');
+
+        nameOfNetwork = split[split.Length - 2].Replace(" Network", "");
+
+
+        Enum.TryParse(nameOfNetwork, out ExtractDataFromCSV.Network network);
+
+        extractDataFromCSV.ExtractNetworkTokenTxnData(_dirs[i] + "\\" + csvMergeFileName, network);
       }
     }
     static void MergeFilesToOne(string[] _fileNames, string _outputFileName)
@@ -366,6 +464,16 @@ namespace InvestmentManagement
         }
       }
       return results;
+    }
+
+    public void CollectPortfolioData()
+    {
+
+    }
+
+    void CollectPortfolioDataFromNetworkTxns(List<NetworkTxnInfo> _networkTxnInfoList)
+    {
+
     }
   }//class CollectData
 }
