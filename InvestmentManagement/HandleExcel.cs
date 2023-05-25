@@ -74,9 +74,135 @@ namespace InvestmentManagement
       xlApp = new Excel.Application();
       xlApp.Visible = true;
       oWB = (Excel._Workbook)xlApp.Workbooks.Open(_path);
-      GetIndexOfWorkSheets();
+      
       // SaveStockInfos();
+
+      //xlApp = GetExcelInstance3(_path);//Excel.Application existingExcelApp = GetExcelInstance(_path);
+
+      //if (xlApp != null)//existingExcelApp != null)
+      //{
+      //  // Verwende vorhandene Excel-Instanz
+      //  oWB = xlApp.ActiveWorkbook;//xlApp.Workbooks.Open(_path); // Excel.Workbook workbook =  existingExcelApp.Workbooks.Open(_path);
+      //  // Weitere Aktionen mit der geöffneten Datei durchführen...
+      //}
+      //else
+      //{
+      //  // Erstelle eine neue Excel-Instanz und öffne die Datei
+      //  xlApp = new Excel.Application(); // Excel.Application newExcelApp = new Excel.Application();
+      //  oWB = xlApp.Workbooks.Open(_path); //Excel.Workbook workbook =  newExcelApp.Workbooks.Open(_path);
+      //  // Weitere Aktionen mit der geöffneten Datei durchführen...
+      //}
+
+      xlApp.Visible = true;
+
+      GetIndexOfWorkSheets();
     }
+    public Excel.Application GetExcelInstance(string filePath)
+    {
+      Excel.Application excelApp = null;
+
+      try
+      {
+        excelApp = (Excel.Application)System.Runtime.InteropServices.Marshal.GetActiveObject("Excel.Application");
+
+        foreach (Excel.Workbook workbook in excelApp.Workbooks)
+        {
+          if (workbook.FullName.Equals(filePath))
+          {
+            return excelApp;
+          }
+        }
+      }
+      catch (System.Runtime.InteropServices.COMException)
+      {
+        // Excel is not currently running
+      }
+
+      return null;
+    }
+
+    public Excel.Application GetExcelInstance2(string filePath)
+    {
+      Excel.Application excelApp = null;
+
+      try
+      {
+        var processes = System.Diagnostics.Process.GetProcessesByName("excel");
+
+        foreach (var process in processes)
+        {
+          var wbCount = process.MainWindowHandle.ToInt32();
+          if (wbCount > 0)
+          {
+            Excel.Application tempApp = System.Runtime.InteropServices.Marshal.GetActiveObject("Excel.Application") as Excel.Application;
+            foreach (Excel.Workbook workbook in tempApp.Workbooks)
+            {
+              if (workbook.FullName.Equals(filePath))
+              {
+                excelApp = tempApp;
+                break;
+              }
+            }
+            if (excelApp != null)
+              break;
+          }
+        }
+      }
+      catch (System.Runtime.InteropServices.COMException)
+      {
+        // Excel is not currently running
+      }
+
+      return excelApp;
+    }
+
+    public Excel.Application GetExcelInstance3(string filePath)
+    {
+      Excel.Application excelApp = null;
+
+      try
+      {
+        excelApp = new Excel.Application();
+        excelApp.DisplayAlerts = false; // Verhindert das Anzeigen von Benachrichtigungen
+
+        Excel.Workbook workbook = excelApp.Workbooks.Open(filePath);
+        workbook.Close(SaveChanges: false); // Schließt die Datei ohne Speichern
+
+        excelApp.Quit();
+
+        excelApp.DisplayAlerts = true; // Stellt die ursprünglichen Anzeigeeinstellungen wieder her
+      }
+      catch (System.Runtime.InteropServices.COMException)
+      {
+        // Die Datei ist bereits geöffnet, daher wird die Excel-Instanz genutzt
+        return excelApp;
+      }
+      catch (Exception)
+      {
+        // Fehler beim Öffnen der Datei oder allgemeiner Fehler
+        // Hier kannst du entsprechend handeln
+      }
+
+      // Wenn die Datei nicht geöffnet ist oder ein Fehler auftritt, wird null zurückgegeben
+      return null;
+    }
+
+    static bool IsWorkbookOpened(string wbook)
+    {
+      bool isOpened = true;
+      Excel.Application exApp;
+      exApp = (Excel.Application)System.Runtime.InteropServices.Marshal.GetActiveObject("Excel.Application");
+      try
+      {
+        exApp.Workbooks.get_Item(wbook);
+      }
+      catch (Exception)
+      {
+        isOpened = false;
+      }
+      return isOpened;
+    }
+
 
     void GetIndexOfWorkSheets()
     {
@@ -628,8 +754,6 @@ namespace InvestmentManagement
           }
         }
       }
-      
-
 
       if (!(oSheet is null))
       {
@@ -637,6 +761,36 @@ namespace InvestmentManagement
       }
 
       return null;
+    }
+    public static DateTime GetDateFromCell(int _cellLine, int _cellColum, string _worksheetName)//int _indexOfWorksheet)
+    {
+      DateTime dateTime = new DateTime();
+
+      if (worksheetNameOld != _worksheetName)
+      {
+        // Get worksheet 
+        for (int i = 1; i <= oWB.Worksheets.Count; i++)
+        {
+          oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(i);
+
+          if (oSheet.Name == _worksheetName)
+          {
+            worksheetNameOld = _worksheetName;
+            break;
+          }
+        }
+      }
+
+      if (!(oSheet is null))
+      {
+        if (oSheet.Cells[_cellLine, _cellColum].Value != null)
+        {
+          return oSheet.Cells[_cellLine, _cellColum].Value;
+        }
+        
+      }
+
+      return dateTime;
     }
 
     public static void SetTextInCell(string _text, int _cellLine, int _cellColum, string _worksheetName)
