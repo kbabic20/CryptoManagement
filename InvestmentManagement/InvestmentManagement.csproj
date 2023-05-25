@@ -88,6 +88,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PortfolioManagement.cs" />
     <Compile Include="TradeInfo.cs" />
     <Compile Include="CoinGeckoAPI.cs" />
     <Compile Include="CollectData.cs" />
