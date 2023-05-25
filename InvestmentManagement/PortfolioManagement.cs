@@ -15,6 +15,7 @@ namespace InvestmentManagement
     public void CreateCryptoRegister()
     {
       GoThroughNetworkTxnData();
+      Console.WriteLine("CreateCryptoRegister Done");
     }
 
     void GoThroughNetworkTxnData()
@@ -24,10 +25,12 @@ namespace InvestmentManagement
       var cellOfDate = HandleExcel.GetCellByName("Datum", worksheet);
       var cellOfNetwork = HandleExcel.GetCellByName("Network", worksheet);
       var cellOfNetworkCurrency = HandleExcel.GetCellByName("Network Currency", worksheet);
+      var cellOfValueIn = HandleExcel.GetCellByName("Value In", worksheet);
+      var cellOfValueOut = HandleExcel.GetCellByName("Value Out", worksheet);
 
       int i = 1;
 
-      while(HandleExcel.GetTextFromCell(cellOfDate.cellLine + i , cellOfDate.cellColum, worksheet).Length > 0 )
+      while(HandleExcel.GetDateFromCell(cellOfDate.cellLine + i , cellOfDate.cellColum, worksheet).Ticks > 0 )
       {
 
         string network = HandleExcel.GetTextFromCell(cellOfNetwork.cellLine + i, cellOfNetwork.cellColum, worksheet);
@@ -39,6 +42,39 @@ namespace InvestmentManagement
           {
             //TODo Fehlermeldung Pop Up
             Console.WriteLine("This network '"+ network+ "' with this network currency '" + networkCurrency + "' is not in the Excel Register!! Pls add it manuelly");
+          }
+        }
+        else
+        {
+          int coinIndexPortfolio = GetIndexOfCoinInPortfolio(network, networkCurrency);
+
+          if (coinIndexPortfolio != -1)
+          {
+            double valueIn = HandleExcel.GetValueFromCell(cellOfValueIn.cellLine + i, cellOfValueIn.cellColum, worksheet);
+            double valueOut = HandleExcel.GetValueFromCell(cellOfValueOut.cellLine + i, cellOfValueOut.cellColum, worksheet);
+
+            decimal amount = 0;
+
+            //if (!valueIn.Equals("0"))
+            //{
+            //  amount = int.Parse(valueIn);
+            //}
+            //else if (!valueOut.Equals("0"))
+            //{
+            //  amount = int.Parse(valueOut) * (-1);
+            //}
+
+            if (valueIn > 0)
+            {
+              amount = (decimal) valueIn;
+
+            }
+            else if (valueOut > 0)
+            {
+              amount = (decimal) valueOut * (-1);
+            }
+
+            portfolioList[coinIndexPortfolio].AmountHolding += amount;
           }
         }
 
@@ -79,7 +115,7 @@ namespace InvestmentManagement
       string coinGeckoApiId = "";
       int i = 1;
 
-      while ((HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet).Length > 0) && !isCoinInRegister)
+      while ((HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet) != null) && !isCoinInRegister)
       {
         name = HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet);
         symbol = HandleExcel.GetTextFromCell(cellOfSymbol.cellLine + i, cellOfSymbol.cellColum, worksheet);
@@ -107,6 +143,24 @@ namespace InvestmentManagement
       }
 
       return isCoinInRegister;
+    }
+
+    int GetIndexOfCoinInPortfolio(string _name, string _symbol)
+    {
+      int index = -1;
+      for (int i = 0; i < portfolioList.Count; i++)
+      {
+        if (portfolioList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
+        {
+          if (portfolioList[i].Name.ToLower().Equals(_name.ToLower()))
+          {
+            index = i;
+            break;
+          }
+        }
+
+      }
+      return index;
     }
   }
 }
