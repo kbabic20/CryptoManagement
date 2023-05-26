@@ -43,6 +43,30 @@ namespace InvestmentManagement
             //TODo Fehlermeldung Pop Up
             Console.WriteLine("This network '"+ network+ "' with this network currency '" + networkCurrency + "' is not in the Excel Register!! Pls add it manuelly");
           }
+          else
+          {
+            int coinIndexPortfolio = GetIndexOfCoinInPortfolio(network, networkCurrency);
+
+            if (coinIndexPortfolio != -1)
+            {
+              double valueIn = HandleExcel.GetValueFromCell(cellOfValueIn.cellLine + i, cellOfValueIn.cellColum, worksheet);
+              double valueOut = HandleExcel.GetValueFromCell(cellOfValueOut.cellLine + i, cellOfValueOut.cellColum, worksheet);
+
+              decimal amount = 0;
+
+              if (valueIn > 0)
+              {
+                amount = (decimal)valueIn;
+
+              }
+              else if (valueOut > 0)
+              {
+                amount = (decimal)valueOut * (-1);
+              }
+
+              portfolioList[coinIndexPortfolio].AmountHolding += amount;
+            }
+          }
         }
         else
         {
@@ -54,15 +78,6 @@ namespace InvestmentManagement
             double valueOut = HandleExcel.GetValueFromCell(cellOfValueOut.cellLine + i, cellOfValueOut.cellColum, worksheet);
 
             decimal amount = 0;
-
-            //if (!valueIn.Equals("0"))
-            //{
-            //  amount = int.Parse(valueIn);
-            //}
-            //else if (!valueOut.Equals("0"))
-            //{
-            //  amount = int.Parse(valueOut) * (-1);
-            //}
 
             if (valueIn > 0)
             {
@@ -107,7 +122,7 @@ namespace InvestmentManagement
 
       string worksheet = "CryptoNetworkData";
 
-      var cellOfName = HandleExcel.GetCellByName("Name", worksheet);
+      var cellOfName = HandleExcel.GetCellByName("Name Network", worksheet);
       var cellOfSymbol = HandleExcel.GetCellByName("Symbol", worksheet);
       var cellOfCoinGeckoApiId = HandleExcel.GetCellByName("CoinGecko API ID", worksheet);
       string name = "";

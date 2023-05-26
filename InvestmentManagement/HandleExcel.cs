@@ -74,7 +74,7 @@ namespace InvestmentManagement
       xlApp = new Excel.Application();
       xlApp.Visible = true;
       oWB = (Excel._Workbook)xlApp.Workbooks.Open(_path);
-      
+
       // SaveStockInfos();
 
       //xlApp = GetExcelInstance3(_path);//Excel.Application existingExcelApp = GetExcelInstance(_path);
@@ -82,7 +82,7 @@ namespace InvestmentManagement
       //if (xlApp != null)//existingExcelApp != null)
       //{
       //  // Verwende vorhandene Excel-Instanz
-      //  oWB = xlApp.ActiveWorkbook;//xlApp.Workbooks.Open(_path); // Excel.Workbook workbook =  existingExcelApp.Workbooks.Open(_path);
+      //  oWB = xlApp.Workbooks.Open(_path); // Excel.Workbook workbook =  existingExcelApp.Workbooks.Open(_path);
       //  // Weitere Aktionen mit der geöffneten Datei durchführen...
       //}
       //else
@@ -91,11 +91,12 @@ namespace InvestmentManagement
       //  xlApp = new Excel.Application(); // Excel.Application newExcelApp = new Excel.Application();
       //  oWB = xlApp.Workbooks.Open(_path); //Excel.Workbook workbook =  newExcelApp.Workbooks.Open(_path);
       //  // Weitere Aktionen mit der geöffneten Datei durchführen...
+      //  xlApp.Visible = true;
       //}
 
-      xlApp.Visible = true;
+      
 
-      GetIndexOfWorkSheets();
+      //GetIndexOfWorkSheets();
     }
     public Excel.Application GetExcelInstance(string filePath)
     {
