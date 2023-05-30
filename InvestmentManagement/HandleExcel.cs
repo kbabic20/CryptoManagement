@@ -738,6 +738,35 @@ namespace InvestmentManagement
 
       return -9999;
     }
+    public static decimal GetDecimalFromCell(int _cellLine, int _cellColum, string _worksheetName)//int _indexOfWorksheet)
+    {
+
+
+      if (worksheetNameOld != _worksheetName)
+      {
+        Console.WriteLine("_worksheetName: " + _worksheetName);
+        // Get worksheet 
+        for (int i = 1; i <= oWB.Worksheets.Count; i++)
+        {
+          oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(i);
+
+          if (oSheet.Name == _worksheetName)
+          {
+            worksheetNameOld = _worksheetName;
+            break;
+          }
+        }
+      }
+
+
+
+      if (!(oSheet is null))
+      {
+        return oSheet.Cells[_cellLine, _cellColum].Value;
+      }
+
+      return -9999;
+    }
     public static string GetTextFromCell(int _cellLine, int _cellColum, string _worksheetName)//int _indexOfWorksheet)
     {
 

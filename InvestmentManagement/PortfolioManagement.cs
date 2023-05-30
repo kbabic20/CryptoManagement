@@ -27,6 +27,8 @@ namespace InvestmentManagement
       var cellOfNetworkCurrency = HandleExcel.GetCellByName("Network Currency", worksheet);
       var cellOfValueIn = HandleExcel.GetCellByName("Value In", worksheet);
       var cellOfValueOut = HandleExcel.GetCellByName("Value Out", worksheet);
+      var cellOfMethod = HandleExcel.GetCellByName("Method", worksheet);
+      var cellOfTxnFeeNative = HandleExcel.GetCellByName("TxnFeeNative", worksheet);
 
       int i = 1;
 
@@ -35,7 +37,12 @@ namespace InvestmentManagement
 
         string network = HandleExcel.GetTextFromCell(cellOfNetwork.cellLine + i, cellOfNetwork.cellColum, worksheet);
         string networkCurrency = HandleExcel.GetTextFromCell(cellOfNetworkCurrency.cellLine + i, cellOfNetworkCurrency.cellColum, worksheet);
+        string method = HandleExcel.GetTextFromCell(cellOfMethod.cellLine + i, cellOfMethod.cellColum, worksheet);
+        decimal valueIn = HandleExcel.GetDecimalFromCell(cellOfValueIn.cellLine + i, cellOfValueIn.cellColum, worksheet);
+        decimal valueOut = HandleExcel.GetDecimalFromCell(cellOfValueOut.cellLine + i, cellOfValueOut.cellColum, worksheet);
+        decimal txnFeeNative = HandleExcel.GetDecimalFromCell(cellOfTxnFeeNative.cellLine + i, cellOfTxnFeeNative.cellColum, worksheet);
 
+        decimal amount = 0;
         if (!IsCoinInList(network, networkCurrency))
         {
           if(!IsCoinInExcelRegister(network, networkCurrency))
@@ -49,19 +56,16 @@ namespace InvestmentManagement
 
             if (coinIndexPortfolio != -1)
             {
-              double valueIn = HandleExcel.GetValueFromCell(cellOfValueIn.cellLine + i, cellOfValueIn.cellColum, worksheet);
-              double valueOut = HandleExcel.GetValueFromCell(cellOfValueOut.cellLine + i, cellOfValueOut.cellColum, worksheet);
-
-              decimal amount = 0;
+              
 
               if (valueIn > 0)
               {
                 amount = (decimal)valueIn;
 
               }
-              else if (valueOut > 0)
+              else if (valueOut > 0 )
               {
-                amount = (decimal)valueOut * (-1);
+                amount = (decimal)valueOut * (-1) - txnFeeNative;
               }
 
               portfolioList[coinIndexPortfolio].AmountHolding += amount;
@@ -74,19 +78,15 @@ namespace InvestmentManagement
 
           if (coinIndexPortfolio != -1)
           {
-            double valueIn = HandleExcel.GetValueFromCell(cellOfValueIn.cellLine + i, cellOfValueIn.cellColum, worksheet);
-            double valueOut = HandleExcel.GetValueFromCell(cellOfValueOut.cellLine + i, cellOfValueOut.cellColum, worksheet);
-
-            decimal amount = 0;
 
             if (valueIn > 0)
             {
               amount = (decimal) valueIn;
 
             }
-            else if (valueOut > 0)
+            else if (valueOut > 0 )
             {
-              amount = (decimal) valueOut * (-1);
+              amount = (decimal)valueOut * (-1) - txnFeeNative;
             }
 
             portfolioList[coinIndexPortfolio].AmountHolding += amount;
