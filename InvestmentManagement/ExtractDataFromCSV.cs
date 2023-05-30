@@ -596,6 +596,8 @@ namespace InvestmentManagement
               TxnFeeNative = values[(int)Spalte.K],
               TxnFeeUsd = values[(int)Spalte.L],
               HistoricalPrice = values[(int)Spalte.M],
+              Status = values[(int)Spalte.N],
+              ErrCode = values[(int)Spalte.O],
               Method = values[(int)Spalte.P],
             };
 

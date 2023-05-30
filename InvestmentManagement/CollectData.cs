@@ -288,6 +288,8 @@ namespace InvestmentManagement
       var cellOfTxnFeeNative = HandleExcel.GetCellByName("TxnFeeNative", worksheet);
       var cellOfTxnFee_Usd = HandleExcel.GetCellByName("TxnFee Usd", worksheet);
       var cellOfHistorical_Price = HandleExcel.GetCellByName("Historical Price", worksheet);
+      var cellOfStatus = HandleExcel.GetCellByName("Status", worksheet);
+      var cellOfErrCode = HandleExcel.GetCellByName("ErrCode", worksheet);
       var cellOfMethod = HandleExcel.GetCellByName("Method", worksheet);
 
       for (int i = 0; i < _networkTxnInfoList.Count; i++)
@@ -303,6 +305,8 @@ namespace InvestmentManagement
         HandleExcel.SetTextInCell(_networkTxnInfoList[i].TxnFeeNative, cellOfTxnFeeNative.cellLine + 1 + i, cellOfTxnFeeNative.cellColum, worksheet);
         HandleExcel.SetTextInCell(_networkTxnInfoList[i].TxnFeeUsd, cellOfTxnFee_Usd.cellLine + 1 + i, cellOfTxnFee_Usd.cellColum, worksheet);
         HandleExcel.SetTextInCell(_networkTxnInfoList[i].HistoricalPrice, cellOfHistorical_Price.cellLine + 1 + i, cellOfHistorical_Price.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].Status, cellOfStatus.cellLine + 1 + i, cellOfStatus.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_networkTxnInfoList[i].ErrCode, cellOfErrCode.cellLine + 1 + i, cellOfErrCode.cellColum, worksheet);
         HandleExcel.SetTextInCell(_networkTxnInfoList[i].Method, cellOfMethod.cellLine + 1 + i, cellOfMethod.cellColum, worksheet);
       }
 

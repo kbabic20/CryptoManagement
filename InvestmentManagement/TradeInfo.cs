@@ -38,6 +38,8 @@ namespace InvestmentManagement
     public string TxnFeeNative { get; set; }
     public string TxnFeeUsd { get; set; }
     public string HistoricalPrice { get; set; }
+    public string Status { get; set; }
+    public string ErrCode { get; set; }
     public string Method { get; set; }
   }
   public class NetworkTokenTxnInfo
