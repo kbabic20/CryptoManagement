@@ -21,17 +21,17 @@ namespace InvestmentManagement
     HandleExcel handleExcel;
     CoinGeckoAPI coinGeckoAPI;
     CryptoKauf CryptoKauf;
-   // string _excelFilePath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Crypto Investment_aktuell.xlsx"; //@"C:\Projekte\Unterlagen\Cryptos\Dokumente\Crypto Investment_aktuell.xlsx"; //
-    string _excelFilePath = @"C:\Projekte\Unterlagen\Cryptos\Dokumente\Crypto Investment_aktuell.xlsx"; //
+    string excelFilePath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Crypto Investment_aktuell.xlsx"; //@"C:\Projekte\Unterlagen\Cryptos\Dokumente\Crypto Investment_aktuell.xlsx"; //
+    //string excelFilePath = @"C:\Projekte\Unterlagen\Cryptos\Dokumente\Crypto Investment_aktuell.xlsx"; //
     string csvPath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\Export Order History-2022-10-16 16_49_26.csv";// @"C:\Projekte\Unterlagen\Cryptos\Dokumente\Binance\Export Order History-2022-10-16 16_49_26.csv";//
     string testExcelPath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Binance\test.xlsx";
-    //string documentFolder = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\";
-    string documentFolder = @"C:\Projekte\Unterlagen\Cryptos\Dokumente\Dokumente\";
+    string documentFolder = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\";
+    //string documentFolder = @"C:\Projekte\Unterlagen\Cryptos\Dokumente\Dokumente\";
     public Form1()
     {
       InitializeComponent();
       //webCrawler = new WebCrawler();
-      handleExcel = new HandleExcel(_excelFilePath);
+      handleExcel = new HandleExcel(excelFilePath);
      // ExtractDataFromCSV.SaveDataToExcel( ExtractDataFromCSV.GetDataFromCSV(csvPath), testExcelPath);
       CryptoKauf = new CryptoKauf();
 

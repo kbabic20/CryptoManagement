@@ -790,7 +790,7 @@ namespace InvestmentManagement
         return oSheet.Cells[_cellLine, _cellColum].Value;
       }
 
-      return null;
+      return "";//return null;
     }
     public static DateTime GetDateFromCell(int _cellLine, int _cellColum, string _worksheetName)//int _indexOfWorksheet)
     {

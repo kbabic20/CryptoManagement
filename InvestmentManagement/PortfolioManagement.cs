@@ -29,6 +29,7 @@ namespace InvestmentManagement
       var cellOfValueOut = HandleExcel.GetCellByName("Value Out", worksheet);
       var cellOfMethod = HandleExcel.GetCellByName("Method", worksheet);
       var cellOfTxnFeeNative = HandleExcel.GetCellByName("TxnFeeNative", worksheet);
+      var cellOfStatus = HandleExcel.GetCellByName("Status", worksheet);
 
       int i = 1;
 
@@ -37,6 +38,7 @@ namespace InvestmentManagement
 
         string network = HandleExcel.GetTextFromCell(cellOfNetwork.cellLine + i, cellOfNetwork.cellColum, worksheet);
         string networkCurrency = HandleExcel.GetTextFromCell(cellOfNetworkCurrency.cellLine + i, cellOfNetworkCurrency.cellColum, worksheet);
+        string status = HandleExcel.GetTextFromCell(cellOfStatus.cellLine + i, cellOfStatus.cellColum, worksheet);
         string method = HandleExcel.GetTextFromCell(cellOfMethod.cellLine + i, cellOfMethod.cellColum, worksheet);
         decimal valueIn = HandleExcel.GetDecimalFromCell(cellOfValueIn.cellLine + i, cellOfValueIn.cellColum, worksheet);
         decimal valueOut = HandleExcel.GetDecimalFromCell(cellOfValueOut.cellLine + i, cellOfValueOut.cellColum, worksheet);
@@ -60,13 +62,22 @@ namespace InvestmentManagement
 
               if (valueIn > 0)
               {
-                amount = (decimal)valueIn;
+                amount = valueIn;
 
               }
               else if (valueOut > 0 )
               {
-                amount = (decimal)valueOut * (-1) - txnFeeNative;
+                if (status.Contains("Error"))
+                {
+                  amount = txnFeeNative * (-1);
+                }
+                else
+                {
+                  amount = valueOut * (-1) - txnFeeNative;
+                }
+                
               }
+
 
               portfolioList[coinIndexPortfolio].AmountHolding += amount;
             }
@@ -81,12 +92,20 @@ namespace InvestmentManagement
 
             if (valueIn > 0)
             {
-              amount = (decimal) valueIn;
+              amount = valueIn;
 
             }
-            else if (valueOut > 0 )
+            else if (valueOut > 0)
             {
-              amount = (decimal)valueOut * (-1) - txnFeeNative;
+              if (status.Contains("Error"))
+              {
+                amount = txnFeeNative * (-1);
+              }
+              else
+              {
+                amount = valueOut * (-1) - txnFeeNative;
+              }
+
             }
 
             portfolioList[coinIndexPortfolio].AmountHolding += amount;
