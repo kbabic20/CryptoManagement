@@ -417,7 +417,7 @@ namespace InvestmentManagement
     {
       int _columOfName = 0;
       int _lineOfName = 0;
-      int _limitSearch = 50;
+      int _limitSearch = 25;
       int _colum;
       bool _cellWasNotFound = false;
       bool _cellWasFound = false;
@@ -738,7 +738,7 @@ namespace InvestmentManagement
 
       return -9999;
     }
-    public static decimal GetDecimalFromCell(int _cellLine, int _cellColum, string _worksheetName)//int _indexOfWorksheet)
+    public static double GetDecimalFromCell(int _cellLine, int _cellColum, string _worksheetName)//int _indexOfWorksheet)
     {
 
 
@@ -787,7 +787,11 @@ namespace InvestmentManagement
 
       if (!(oSheet is null))
       {
-        return oSheet.Cells[_cellLine, _cellColum].Value;
+        if (oSheet.Cells[_cellLine, _cellColum].Value != null)
+        {
+          return string.Concat(oSheet.Cells[_cellLine, _cellColum].Value);
+        }
+        
       }
 
       return "";//return null;
