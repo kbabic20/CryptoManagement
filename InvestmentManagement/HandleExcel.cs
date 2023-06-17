@@ -9,6 +9,13 @@ namespace InvestmentManagement
 {
   public class HandleExcel
   {
+    class CellNames
+    {
+      public string worksheet;
+      public string nameOfCell;
+      public (int cellLine, int cellColum) cell;
+    }
+
     Excel.Application xlApp;
     static Excel._Workbook oWB;
     static Excel._Worksheet oSheet;
@@ -28,8 +35,12 @@ namespace InvestmentManagement
     List<string> coinGeckoAPIIDS = new List<string>();
     List<string> priceOfCryptos = new List<string>();
 
+   static List<CellNames> cellNames = new List<CellNames>();
+
     WebCrawler webCrawler;
     CoinGeckoAPI coinGeckoAPI;
+
+    
 
     public enum Spalten
     {
@@ -424,6 +435,19 @@ namespace InvestmentManagement
 
       Console.WriteLine("-------------GetCellByName-------------");
 
+      // Check first if the cell we are searching for is already in the list
+      for (int i = 0; i < cellNames.Count; i++)
+      {
+        if (cellNames[i].worksheet.Equals(_worksheetName))
+        {
+          if (cellNames[i].nameOfCell.Equals(_name))
+          {
+            return (cellNames[i].cell.cellLine, cellNames[i].cell.cellColum);
+          }
+        }
+      }
+
+      // Check if the worksheet is aready open
       if (worksheetNameOld != _worksheetName)
       {
         Console.WriteLine("_worksheetName: " + _worksheetName);
@@ -439,6 +463,7 @@ namespace InvestmentManagement
           }
         }
       }
+
       if (!(oSheet is null))
       {
         for (int _currLine = 1; _currLine < _limitSearch; _currLine++)
@@ -455,6 +480,18 @@ namespace InvestmentManagement
                 _columOfName = _currColum;
                 _lineOfName = _currLine;
                 _cellWasFound = true;
+
+                // Save this cell for later seachring
+                CellNames cell = new CellNames
+                {
+                  worksheet = _worksheetName,
+                  nameOfCell = _name,
+                  cell = (_lineOfName, _columOfName)
+
+                };
+
+                cellNames.Add(cell);
+
                 break;
               }
             }
