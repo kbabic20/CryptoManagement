@@ -21,6 +21,9 @@ namespace InvestmentManagement
 
     void GoThroughNetworkTxnData()
     {
+
+      Console.WriteLine("-------------GoThroughNetworkTxnData-------------");
+
       string worksheet = "NetzwerkTxnDaten";
 
       var cellOfDate = HandleExcel.GetCellByName("Datum", worksheet);
@@ -190,10 +193,13 @@ namespace InvestmentManagement
 
         if (!(contractAddress is null))
         {
-          if (contractAddress.Equals(_contractAddress))
+          if (_contractAddress.Length > 0)
           {
-            isCoinInRegister = true;
-            break;
+            if (contractAddress.Equals(_contractAddress))
+            {
+              isCoinInRegister = true;
+              break;
+            }
           }
         }
         
@@ -263,6 +269,8 @@ namespace InvestmentManagement
     }
     void GoThroughNetworkTokenTxnData()
     {
+      Console.WriteLine("-------------GoThroughNetworkTokenTxnData-------------");
+
       string worksheet = "NetzwerkTokenTxnDaten";
 
       var cellOfDate = HandleExcel.GetCellByName("Datum", worksheet);
