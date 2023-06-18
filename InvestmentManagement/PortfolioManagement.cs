@@ -49,16 +49,16 @@ namespace InvestmentManagement
         decimal txnFeeNative = (decimal)HandleExcel.GetDecimalFromCell(cellOfTxnFeeNative.cellLine + i, cellOfTxnFeeNative.cellColum, worksheet);
 
         decimal amount = 0;
-        if (!IsCoinInList(network, networkCurrency, ""))
+        if (!IsCoinInList(network, networkCurrency, "", true))
         {
-          if(!IsCoinInExcelRegister(network, networkCurrency, ""))
+          if(!IsCoinInExcelRegister(network, networkCurrency, "", true))
           {
             //TODo Fehlermeldung Pop Up
             Console.WriteLine("This network '"+ network+ "' with this network currency '" + networkCurrency + "' is not in the Excel Register!! Pls add it manuelly");
           }
           else
           {
-            int coinIndexPortfolio = GetIndexOfCoinInPortfolio(network, networkCurrency, "");
+            int coinIndexPortfolio = GetIndexOfCoinInPortfolio(network, networkCurrency, "", true);
 
             if (coinIndexPortfolio != -1)
             {
@@ -89,7 +89,7 @@ namespace InvestmentManagement
         }
         else
         {
-          int coinIndexPortfolio = GetIndexOfCoinInPortfolio(network, networkCurrency, "");
+          int coinIndexPortfolio = GetIndexOfCoinInPortfolio(network, networkCurrency, "", true);
 
           if (coinIndexPortfolio != -1)
           {
@@ -127,7 +127,7 @@ namespace InvestmentManagement
       }
     }
 
-    bool IsCoinInList(string _name, string _symbol, string _contractAddress)
+    bool IsCoinInList(string _name, string _symbol, string _contractAddress, bool _isNetworkCoin)
     {
       bool isCoinInList = false;
 
@@ -146,14 +146,29 @@ namespace InvestmentManagement
       {
         for (int i = 0; i < portfolioList.Count; i++)
         {
-          if (portfolioList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
+          if (_isNetworkCoin)
           {
-            if (portfolioList[i].Name.ToLower().Equals(_name.ToLower()))
+            if (portfolioList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
             {
-              isCoinInList = true;
-              break;
+              if (portfolioList[i].Network.ToLower().Equals(_name.ToLower()))
+              {
+                isCoinInList = true;
+                break;
+              }
             }
           }
+          else
+          {
+            if (portfolioList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
+            {
+              if (portfolioList[i].Name.ToLower().Equals(_name.ToLower()))
+              {
+                isCoinInList = true;
+                break;
+              }
+            }
+          }
+          
 
         }
       }
@@ -162,20 +177,22 @@ namespace InvestmentManagement
 
     }
 
-    bool IsCoinInExcelRegister(string _name, string _symbol, string _contractAddress)
+    bool IsCoinInExcelRegister(string _name, string _symbol, string _contractAddress, bool _isNetworkCoin)
     {
       bool isCoinInRegister = false;
 
-      string worksheet = "CryptoNetworkData";
+      string worksheet = "CryptoRegister";
 
       var cellOfContractAddress = HandleExcel.GetCellByName("Contract Address", worksheet);
-      var cellOfName = HandleExcel.GetCellByName("Name Network", worksheet);
+      var cellOfName = HandleExcel.GetCellByName("Name", worksheet);
       var cellOfSymbol = HandleExcel.GetCellByName("Symbol", worksheet);
+      var cellOfNetwork = HandleExcel.GetCellByName("Network", worksheet);
       var cellOfCoinGeckoApiId = HandleExcel.GetCellByName("CoinGecko API ID", worksheet);
 
       string contractAddress = "N/A";
       string name = "";
       string symbol = "";
+      string network = "";
       string coinGeckoApiId = "";
       int i = 1;
 
@@ -189,6 +206,7 @@ namespace InvestmentManagement
         contractAddress = HandleExcel.GetTextFromCell(cellOfContractAddress.cellLine + i, cellOfContractAddress.cellColum, worksheet);
         name = HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet);
         symbol = HandleExcel.GetTextFromCell(cellOfSymbol.cellLine + i, cellOfSymbol.cellColum, worksheet);
+        network = HandleExcel.GetTextFromCell(cellOfNetwork.cellLine + i, cellOfNetwork.cellColum, worksheet);
         coinGeckoApiId = HandleExcel.GetTextFromCell(cellOfCoinGeckoApiId.cellLine + i, cellOfCoinGeckoApiId.cellColum, worksheet);
 
         if (!(contractAddress is null))
@@ -202,19 +220,30 @@ namespace InvestmentManagement
             }
           }
         }
-        
-        if (name.ToLower().Equals(_name.ToLower()) && symbol.ToLower().Equals(_symbol.ToLower()))
+
+        if (_isNetworkCoin)
         {
-          if (!(contractAddress is null))
-          {
-            if (contractAddress.Length.Equals(0) && _contractAddress.Length > 0)
-            {
-              HandleExcel.SetTextInCell(_contractAddress, cellOfContractAddress.cellLine + i, cellOfContractAddress.cellColum, worksheet);
-            }
+        if(network.ToLower().Equals(_name.ToLower()) && symbol.ToLower().Equals(_symbol.ToLower()))
+        {
+            isCoinInRegister = true;
+            break;
           }
-            
-          isCoinInRegister = true;
-          break;
+        }
+        else
+        {
+          if (name.ToLower().Equals(_name.ToLower()) && symbol.ToLower().Equals(_symbol.ToLower()))
+          {
+            if (!(contractAddress is null))
+            {
+              if (contractAddress.Length.Equals(0) && _contractAddress.Length > 0)
+              {
+                HandleExcel.SetTextInCell(_contractAddress, cellOfContractAddress.cellLine + i, cellOfContractAddress.cellColum, worksheet);
+              }
+            }
+
+            isCoinInRegister = true;
+            break;
+          }
         }
 
         i++;
@@ -222,21 +251,37 @@ namespace InvestmentManagement
 
       if (isCoinInRegister)
       {
-        Portfolio portfolio = new Portfolio
+        if (_isNetworkCoin)
         {
-          Symbol = symbol,
-          Name = name,
-          ContractAddress = contractAddress,
-          CoinGeckoApiID = coinGeckoApiId
-        };
+          Portfolio portfolio = new Portfolio
+          {
+            Symbol = symbol,
+            Network = network,
+            Name = name,
+            ContractAddress = contractAddress,
+            CoinGeckoApiID = coinGeckoApiId
+          };
 
-        portfolioList.Add(portfolio);
+          portfolioList.Add(portfolio);
+        }
+        else
+        {
+          Portfolio portfolio = new Portfolio
+          {
+            Symbol = symbol,
+            Name = name,
+            ContractAddress = contractAddress,
+            CoinGeckoApiID = coinGeckoApiId
+          };
+
+          portfolioList.Add(portfolio);
+        }
       }
 
       return isCoinInRegister;
     }
 
-    int GetIndexOfCoinInPortfolio(string _name, string _symbol, string _contractAddress)
+    int GetIndexOfCoinInPortfolio(string _name, string _symbol, string _contractAddress, bool _isNetworkCoin)
     {
       int index = -1;
       if (_contractAddress.Length > 0)
@@ -254,12 +299,26 @@ namespace InvestmentManagement
       {
         for (int i = 0; i < portfolioList.Count; i++)
         {
-          if (portfolioList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
+          if (_isNetworkCoin)
           {
-            if (portfolioList[i].Name.ToLower().Equals(_name.ToLower()))
+            if (portfolioList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
             {
-              index = i;
-              break;
+              if (portfolioList[i].Network.ToLower().Equals(_name.ToLower()))
+              {
+                index = i;
+                break;
+              }
+            }
+          }
+          else
+          {
+            if (portfolioList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
+            {
+              if (portfolioList[i].Name.ToLower().Equals(_name.ToLower()))
+              {
+                index = i;
+                break;
+              }
             }
           }
         }
@@ -313,16 +372,16 @@ namespace InvestmentManagement
         }
 
 
-        if (!IsCoinInList(tokenName, tokenSymbol, contractAddress))
+        if (!IsCoinInList(tokenName, tokenSymbol, contractAddress, false))
         {
-          if (!IsCoinInExcelRegister(tokenName, tokenSymbol, contractAddress))
+          if (!IsCoinInExcelRegister(tokenName, tokenSymbol, contractAddress, false))
           {
             //TODo Fehlermeldung Pop Up
             Console.WriteLine("This Token '" + tokenName + "' with this token symbol '" + tokenSymbol + "' is not in the Excel Register!! Pls add it manuelly");
           }
           else
           {
-            int coinIndexPortfolio = GetIndexOfCoinInPortfolio(network, networkCurrency, contractAddress);
+            int coinIndexPortfolio = GetIndexOfCoinInPortfolio(network, networkCurrency, contractAddress, false);
 
             if (coinIndexPortfolio != -1)
             {
@@ -332,7 +391,7 @@ namespace InvestmentManagement
         }
         else
         {
-          int coinIndexPortfolio = GetIndexOfCoinInPortfolio(network, networkCurrency, contractAddress);
+          int coinIndexPortfolio = GetIndexOfCoinInPortfolio(network, networkCurrency, contractAddress, false);
 
           if (coinIndexPortfolio != -1)
           {
