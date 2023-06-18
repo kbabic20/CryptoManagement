@@ -10,13 +10,113 @@ namespace InvestmentManagement
   {
 
     List<Portfolio> portfolioList = new List<Portfolio>();
-    
+    List<MyWallet> myWalletsList = new List<MyWallet>();
+    List<CryptoRegisterData> cryptoRegisterDataList = new List<CryptoRegisterData>();
+
 
     public void CreateCryptoRegister()
     {
+      CollectExcelData();
+
       GoThroughNetworkTxnData();
       GoThroughNetworkTokenTxnData();
+      //GoThroughCexBuySellData();
+      WriteNewCryptoRegisterDataIntoExcel();
       Console.WriteLine("CreateCryptoRegister Done");
+    }
+
+    void CollectExcelData()
+    {
+      SaveMyWalletsData();
+      SaveCryptoRegisterData();
+    }
+
+    void SaveMyWalletsData()
+    {
+      Console.WriteLine("-------------SaveMyWalletsData-------------");
+
+      string worksheet = "MyWallets";
+
+      var cellOfWalletAddress = HandleExcel.GetCellByName("Wallet Address", worksheet);
+      var cellOfWalletName = HandleExcel.GetCellByName("Wallet Name", worksheet);
+
+      string walletAddress = "";
+      string walletName = "";
+      int i = 1;
+
+      while (HandleExcel.GetTextFromCell(cellOfWalletAddress.cellLine + i, cellOfWalletAddress.cellColum, worksheet) != null)
+      {
+        walletAddress = HandleExcel.GetTextFromCell(cellOfWalletAddress.cellLine + i, cellOfWalletAddress.cellColum, worksheet);
+
+        if (HandleExcel.GetTextFromCell(cellOfWalletAddress.cellLine + i, cellOfWalletAddress.cellColum, worksheet).Length == 0)
+        {
+          break;
+        }
+
+        walletName = HandleExcel.GetTextFromCell(cellOfWalletName.cellLine + i, cellOfWalletName.cellColum, worksheet);
+
+        MyWallet myWallet = new MyWallet
+        {
+          Address = walletAddress,
+          Name = walletName
+        };
+
+        myWalletsList.Add(myWallet);
+
+        i++;
+      }
+
+    }
+
+
+    void SaveCryptoRegisterData()
+    {
+
+      Console.WriteLine("-------------SaveCryptoRegisterData-------------");
+
+      string worksheet = "CryptoRegister";
+
+      var cellOfContractAddress = HandleExcel.GetCellByName("Contract Address", worksheet);
+      var cellOfName = HandleExcel.GetCellByName("Name", worksheet);
+      var cellOfSymbol = HandleExcel.GetCellByName("Symbol", worksheet);
+      var cellOfNetwork = HandleExcel.GetCellByName("Network", worksheet);
+      var cellOfCoinGeckoApiId = HandleExcel.GetCellByName("CoinGecko API ID", worksheet);
+
+      string contractAddress = "N/A";
+      string name = "";
+      string symbol = "";
+      string network = "";
+      string coinGeckoApiId = "";
+
+      int i = 1;
+
+      while ((HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet) != null) )
+      {
+        if (HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet).Length == 0)
+        {
+          break;
+        }
+
+        contractAddress = HandleExcel.GetTextFromCell(cellOfContractAddress.cellLine + i, cellOfContractAddress.cellColum, worksheet);
+        name = HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet);
+        symbol = HandleExcel.GetTextFromCell(cellOfSymbol.cellLine + i, cellOfSymbol.cellColum, worksheet);
+        network = HandleExcel.GetTextFromCell(cellOfNetwork.cellLine + i, cellOfNetwork.cellColum, worksheet);
+        coinGeckoApiId = HandleExcel.GetTextFromCell(cellOfCoinGeckoApiId.cellLine + i, cellOfCoinGeckoApiId.cellColum, worksheet);
+
+        CryptoRegisterData cryptoRegisterData = new CryptoRegisterData
+        {
+          ContractAddress = contractAddress,
+          Name = name,
+          Symbol = symbol,
+          Network = network,
+          CoinGeckoApiID = coinGeckoApiId
+        };
+
+        cryptoRegisterDataList.Add(cryptoRegisterData);
+
+        i++;
+      }
+
     }
 
     void GoThroughNetworkTxnData()
@@ -180,42 +280,18 @@ namespace InvestmentManagement
     bool IsCoinInExcelRegister(string _name, string _symbol, string _contractAddress, bool _isNetworkCoin)
     {
       bool isCoinInRegister = false;
+      int index = -1;
 
-      string worksheet = "CryptoRegister";
-
-      var cellOfContractAddress = HandleExcel.GetCellByName("Contract Address", worksheet);
-      var cellOfName = HandleExcel.GetCellByName("Name", worksheet);
-      var cellOfSymbol = HandleExcel.GetCellByName("Symbol", worksheet);
-      var cellOfNetwork = HandleExcel.GetCellByName("Network", worksheet);
-      var cellOfCoinGeckoApiId = HandleExcel.GetCellByName("CoinGecko API ID", worksheet);
-
-      string contractAddress = "N/A";
-      string name = "";
-      string symbol = "";
-      string network = "";
-      string coinGeckoApiId = "";
-      int i = 1;
-
-      while ((HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet) != null) && !isCoinInRegister)
+      for (int  i = 0;  i < cryptoRegisterDataList.Count;  i++)
       {
-        if (HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet).Length == 0)
-        {
-          break;
-        }
-
-        contractAddress = HandleExcel.GetTextFromCell(cellOfContractAddress.cellLine + i, cellOfContractAddress.cellColum, worksheet);
-        name = HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet);
-        symbol = HandleExcel.GetTextFromCell(cellOfSymbol.cellLine + i, cellOfSymbol.cellColum, worksheet);
-        network = HandleExcel.GetTextFromCell(cellOfNetwork.cellLine + i, cellOfNetwork.cellColum, worksheet);
-        coinGeckoApiId = HandleExcel.GetTextFromCell(cellOfCoinGeckoApiId.cellLine + i, cellOfCoinGeckoApiId.cellColum, worksheet);
-
-        if (!(contractAddress is null))
+        if (!(cryptoRegisterDataList[i].ContractAddress is null))
         {
           if (_contractAddress.Length > 0)
           {
-            if (contractAddress.Equals(_contractAddress))
+            if (cryptoRegisterDataList[i].ContractAddress.Equals(_contractAddress))
             {
               isCoinInRegister = true;
+              index = i;
               break;
             }
           }
@@ -223,62 +299,76 @@ namespace InvestmentManagement
 
         if (_isNetworkCoin)
         {
-        if(network.ToLower().Equals(_name.ToLower()) && symbol.ToLower().Equals(_symbol.ToLower()))
-        {
+          if (cryptoRegisterDataList[i].Network.ToLower().Equals(_name.ToLower()) 
+              && cryptoRegisterDataList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
+          {
             isCoinInRegister = true;
+            index = i;
             break;
           }
         }
         else
         {
-          if (name.ToLower().Equals(_name.ToLower()) && symbol.ToLower().Equals(_symbol.ToLower()))
+          if (cryptoRegisterDataList[i].Name.ToLower().Equals(_name.ToLower()) && cryptoRegisterDataList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
           {
-            if (!(contractAddress is null))
+            if (!(cryptoRegisterDataList[i].ContractAddress is null))
             {
-              if (contractAddress.Length.Equals(0) && _contractAddress.Length > 0)
+              if (cryptoRegisterDataList[i].ContractAddress.Length.Equals(0) && _contractAddress.Length > 0)
               {
-                HandleExcel.SetTextInCell(_contractAddress, cellOfContractAddress.cellLine + i, cellOfContractAddress.cellColum, worksheet);
+                cryptoRegisterDataList[i].ContractAddress = _contractAddress;
               }
             }
 
             isCoinInRegister = true;
+            index = i;
             break;
           }
         }
 
-        i++;
       }
 
       if (isCoinInRegister)
       {
-        if (_isNetworkCoin)
-        {
-          Portfolio portfolio = new Portfolio
-          {
-            Symbol = symbol,
-            Network = network,
-            Name = name,
-            ContractAddress = contractAddress,
-            CoinGeckoApiID = coinGeckoApiId
-          };
+        //if (_isNetworkCoin)
+        //{
+        //  Portfolio portfolio = new Portfolio
+        //  {
+        //    Symbol = cryptoRegisterDataList[index].Symbol,
+        //    Network = cryptoRegisterDataList[index].Network,
+        //    Name = cryptoRegisterDataList[index].Name,
+        //    ContractAddress = cryptoRegisterDataList[index].ContractAddress,
+        //    CoinGeckoApiID = cryptoRegisterDataList[index].CoinGeckoApiID
+        //  };
 
-          portfolioList.Add(portfolio);
-        }
-        else
-        {
-          Portfolio portfolio = new Portfolio
-          {
-            Symbol = symbol,
-            Name = name,
-            ContractAddress = contractAddress,
-            CoinGeckoApiID = coinGeckoApiId
-          };
+        //  portfolioList.Add(portfolio);
+        //}
+        //else
+        //{
+        //  Portfolio portfolio = new Portfolio
+        //  {
+        //    Symbol = cryptoRegisterDataList[index].Symbol,
+        //    Name = cryptoRegisterDataList[index].Name,
+        //    ContractAddress = cryptoRegisterDataList[index].ContractAddress,
+        //    CoinGeckoApiID = cryptoRegisterDataList[index].CoinGeckoApiID
+        //  };
 
-          portfolioList.Add(portfolio);
-        }
+        //  portfolioList.Add(portfolio);
+        //}
+
+        Portfolio portfolio = new Portfolio
+        {
+          Symbol = cryptoRegisterDataList[index].Symbol,
+          Network = cryptoRegisterDataList[index].Network,
+          Name = cryptoRegisterDataList[index].Name,
+          ContractAddress = cryptoRegisterDataList[index].ContractAddress,
+          CoinGeckoApiID = cryptoRegisterDataList[index].CoinGeckoApiID
+        };
+
+        portfolioList.Add(portfolio);
       }
 
       return isCoinInRegister;
+
     }
 
     int GetIndexOfCoinInPortfolio(string _name, string _symbol, string _contractAddress, bool _isNetworkCoin)
@@ -406,33 +496,110 @@ namespace InvestmentManagement
 
     bool IsMyWallet(string _walletAddress)
     {
-      string worksheet = "MyWallets";
 
-      var cellOfWalletAddress = HandleExcel.GetCellByName("Wallet Address", worksheet);
-      var cellOfWalletName = HandleExcel.GetCellByName("Wallet Name", worksheet);
+      Console.WriteLine("-------------IsMyWallet-------------");
 
-      string walletAddress = "";
-      string walletName = "";
-      int i = 1;
-
-      while (HandleExcel.GetTextFromCell(cellOfWalletAddress.cellLine + i, cellOfWalletAddress.cellColum, worksheet) != null)
+      for (int i = 0; i < myWalletsList.Count; i++)
       {
-        if (HandleExcel.GetTextFromCell(cellOfWalletAddress.cellLine + i, cellOfWalletAddress.cellColum, worksheet).Length == 0 )
-        {
-          break;
-        }
-        walletAddress = HandleExcel.GetTextFromCell(cellOfWalletAddress.cellLine + i, cellOfWalletAddress.cellColum, worksheet);
-        walletName = HandleExcel.GetTextFromCell(cellOfWalletName.cellLine + i, cellOfWalletName.cellColum, worksheet);
-
-        if (walletAddress.Equals(_walletAddress))
+        if (myWalletsList[i].Address.Equals(_walletAddress))
         {
           return true;
         }
+      }
+
+      return false;
+    }
+
+    void GoThroughCexBuySellData()
+    {
+
+      Console.WriteLine("-------------GoThroughCexBuySellData-------------");
+
+      string worksheet = "Cex Kauf&Verkauf";
+
+
+
+      var cellOfDate = HandleExcel.GetCellByName("Datum", worksheet);
+      var cellOfPair = HandleExcel.GetCellByName("Pair", worksheet);
+      var cellOfBuy_Sell = HandleExcel.GetCellByName("Kauf/Verkauf?", worksheet);
+      var cellOfDepot = HandleExcel.GetCellByName("Depot", worksheet);
+      var cellOfRecievedAmount = HandleExcel.GetCellByName("Stückzahl", worksheet);
+      var cellOfPrice = HandleExcel.GetCellByName("Preis pro Stück beim Kauf/Verkauf (bezogen auf das Pair)", worksheet);
+      var cellOfFee = HandleExcel.GetCellByName("Gebühren (bezogen auf das Pair)", worksheet);
+      var cellOfAmountInvested = HandleExcel.GetCellByName("Gezahlt/Bekommen insgesamt (bezogen auf das Pair)", worksheet);
+      var cellOfAmountInvestedAfterFee = HandleExcel.GetCellByName("Gezahlt/Bekommen ohne Gebühr (bezogen auf das Pair)", worksheet);
+
+      int i = 1;
+
+      while (HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet).Ticks > 0)
+      {
 
         i++;
       }
 
-      return false;
+    }
+
+    void WriteNewCryptoRegisterDataIntoExcel()
+    {
+
+      Console.WriteLine("-------------WriteNewCryptoRegisterDataIntoExcel-------------");
+
+      string worksheet = "CryptoRegister";
+
+      var cellOfContractAddress = HandleExcel.GetCellByName("Contract Address", worksheet);
+      var cellOfName = HandleExcel.GetCellByName("Name", worksheet);
+      var cellOfSymbol = HandleExcel.GetCellByName("Symbol", worksheet);
+      var cellOfNetwork = HandleExcel.GetCellByName("Network", worksheet);
+
+      string name = "";
+      string symbol = "";
+      string network = "";
+      string contractAddress = "";
+
+      int i = 1;
+
+      while ((HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet) != null))
+      {
+        name = HandleExcel.GetTextFromCell(cellOfName.cellLine + i, cellOfName.cellColum, worksheet);
+
+        if (name.Length == 0)
+        {
+          break;
+        }
+
+        symbol = HandleExcel.GetTextFromCell(cellOfSymbol.cellLine + i, cellOfSymbol.cellColum, worksheet);
+        network = HandleExcel.GetTextFromCell(cellOfNetwork.cellLine + i, cellOfNetwork.cellColum, worksheet);
+        contractAddress = HandleExcel.GetTextFromCell(cellOfContractAddress.cellLine + i, cellOfContractAddress.cellColum, worksheet);
+
+        if (contractAddress.Length == 0)
+        {
+          for (int j = 0; j < cryptoRegisterDataList.Count; j++)
+          {
+            if (cryptoRegisterDataList[j].ContractAddress.Length > 0)
+            {
+
+              if ((network.ToLower().Equals(cryptoRegisterDataList[j].Network.ToLower())
+              && symbol.ToLower().Equals(cryptoRegisterDataList[j].Symbol.ToLower()))
+              || (name.ToLower().Equals(cryptoRegisterDataList[j].Name.ToLower())
+              && symbol.ToLower().Equals(cryptoRegisterDataList[j].Symbol.ToLower())))
+              {
+                HandleExcel.SetTextInCell(cryptoRegisterDataList[j].ContractAddress, cellOfContractAddress.cellLine + i, cellOfContractAddress.cellColum, worksheet);
+                break;
+              }
+
+            }
+            else
+            {
+              continue;
+            }
+          }
+        }
+
+        i++;
+      }
+      
+
+      
     }
   }
 }

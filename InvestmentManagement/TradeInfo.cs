@@ -73,4 +73,18 @@ namespace InvestmentManagement
     public decimal CurrPrice { get; set; }
   }
 
+  public class MyWallet
+  {
+    public string Address { get; set; }
+    public string Name { get; set; }
+  }
+  public class CryptoRegisterData
+  {
+    public string ContractAddress { get; set; }
+    public string Name { get; set; }
+    public string Symbol { get; set; }
+    public string CoinGeckoApiID { get; set; }
+    public string Network { get; set; }
+  }
+
 }
