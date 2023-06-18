@@ -240,7 +240,7 @@ namespace InvestmentManagement
     {
       Console.WriteLine("-------------InsertBuySellData-------------");
 
-      string worksheet = "Kauf&Verkauf";
+      string worksheet = "Cex Kauf&Verkauf";
 
       HandleExcel.ClearRange("A4", "Z1000", worksheet);
 
