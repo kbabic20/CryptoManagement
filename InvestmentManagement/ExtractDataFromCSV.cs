@@ -32,6 +32,19 @@ namespace InvestmentManagement
       Solana,
       Bitcoin
     }
+    public enum ExtractFormat
+    {
+      Ethereum = 1,
+      Bsc = 1,
+      Polygon = 1,
+      Fantom = 1,
+      Arbitrum = 1,
+      Optimism = 2,
+      Tron,
+      Avalanche,
+      Solana,
+      Bitcoin
+    }
 
     enum Spalte
     {
@@ -616,43 +629,78 @@ namespace InvestmentManagement
       // Create regular expression objects for both patterns
       Regex numberRegex = new Regex(numberPattern);
       Regex nonNumberRegex = new Regex(nonNumberPattern);
+      int extractFormat;
 
       using (StreamReader reader = new StreamReader(_path))
       {
         while (!reader.EndOfStream)
         {
           string line = reader.ReadLine();
-
+          string networkCurrency = "N/A";
           //line = line.Replace("\"", "");
+          string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+          for (int i = 0; i < values.Length; i++)
+          {
+            values[i] = values[i].Replace(",", "");
 
+            values[i] = values[i].Replace("\"", "");
+          }
+
+          // Skip first line
+          if (values[0].Contains("Txhash"))
+          {
+            continue;
+          }
           switch (_network)
           {
             case Network.Ethereum:
+
+              networkCurrency = "ETH";
               break;
             case Network.Bsc:
+
+              networkCurrency = "BNB";
+              break;
+            case Network.Polygon:
+
+              networkCurrency = "MATIC";
+              break;
+            case Network.Fantom:
+
+              networkCurrency = "FTM";
+              break;
+            case Network.Arbitrum:
+
+              networkCurrency = "ETH";
+              break;
+            case Network.Optimism:
+
+              networkCurrency = "ETH";
+              break;
+            case Network.Tron:
+
+              break;
+            case Network.Avalanche:
+              break;
+            case Network.Solana:
+              break;
+            case Network.Bitcoin:
+
+              networkCurrency = "BTC";
+              break;
+            default:
+              break;
+          }
+
+
+          switch ((int)Enum.Parse(typeof(ExtractDataFromCSV.ExtractFormat), _network.ToString()))
+          {
+            case 1:
               {
-                // Skip first line
-                //if (line.Contains("Txhash,Blockno,UnixTimestamp,DateTime,From,To,"))
-                //{
-                //  continue;
-                //}
-                string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
-                for (int i = 0; i < values.Length; i++)
-                {
-                  values[i] = values[i].Replace(",", "");
-
-                  values[i] = values[i].Replace("\"", "");
-                }
-
-                // Skip first line
-                if (values[0].Contains("Txhash"))
-                {
-                  continue;
-                }
                 NetworkTokenTxnInfo networkTokentxnInfo = new NetworkTokenTxnInfo
                 {
-                  Network = Network.Bsc.ToString(),
-                  NetworkCurrency = "BNB",
+                  Network = _network.ToString(),
+                  NetworkCurrency = networkCurrency,
                   Txhash = values[(int)Spalte.A],
                   Blockno = values[(int)Spalte.B],
                   UnixTimestamp = values[(int)Spalte.C],
@@ -668,26 +716,41 @@ namespace InvestmentManagement
 
                 networkTokenTxnInfoList.Add(networkTokentxnInfo);
               }
+              
+
               break;
-            case Network.Polygon:
+
+
+            case 2:
+              {
+                NetworkTokenTxnInfo networkTokentxnInfo = new NetworkTokenTxnInfo
+                {
+                  Network = _network.ToString(),
+                  NetworkCurrency = networkCurrency,
+                  Txhash = values[(int)Spalte.A],
+                  Blockno = "N/A",
+                  UnixTimestamp = values[(int)Spalte.B],
+                  DateTime = values[(int)Spalte.C],
+                  From = values[(int)Spalte.D],
+                  To = values[(int)Spalte.E],
+                  TokenAmount = values[(int)Spalte.F],
+                  UsdValueDayOfTx = values[(int)Spalte.G],
+                  ContractAddress = values[(int)Spalte.H],
+                  TokenName = values[(int)Spalte.I],
+                  TokenSymbol = values[(int)Spalte.J]
+                };
+
+                networkTokenTxnInfoList.Add(networkTokentxnInfo);
+              }
+
               break;
-            case Network.Fantom:
-              break;
-            case Network.Arbitrum:
-              break;
-            case Network.Optimism:
-              break;
-            case Network.Tron:
-              break;
-            case Network.Avalanche:
-              break;
-            case Network.Solana:
-              break;
-            case Network.Bitcoin:
-              break;
+
             default:
               break;
           }
+        
+
+        
         }
       }
     }
