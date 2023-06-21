@@ -23,6 +23,7 @@ namespace InvestmentManagement
     int itemNo_InvestmentAufteilung;
     int itemNo_Etf_Aktien_Infos;
     int itemNo_Mein_Bestand;
+    int itemNo_Mein_Bestand2;
     int _amountOfstocks = 0;
 
     static string worksheetNameOld = "";
@@ -107,7 +108,7 @@ namespace InvestmentManagement
 
       
 
-      //GetIndexOfWorkSheets();
+      GetIndexOfWorkSheets();
     }
     public Excel.Application GetExcelInstance(string filePath)
     {
@@ -242,6 +243,11 @@ namespace InvestmentManagement
         if (oSheet.Name == "Mein Bestand")
         {
           itemNo_Mein_Bestand = _currWorkShettNo;
+        }
+        // Get worksheet "Mein Bestand"
+        if (oSheet.Name == "Mein Bestand (2)")
+        {
+          itemNo_Mein_Bestand2 = _currWorkShettNo;
         }
       }
 
@@ -689,7 +695,7 @@ namespace InvestmentManagement
       string coinGeckoAPI_url_before_after = "&vs_currencies=eur";
 
       // Get worksheet "Mein Bestand"
-      oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(this.itemNo_Mein_Bestand);
+      oSheet = (Excel._Worksheet)oWB.Worksheets.get_Item(this.itemNo_Mein_Bestand2); //(Excel._Worksheet)oWB.Worksheets.get_Item(this.itemNo_Mein_Bestand);
 
       var cellOfAPI_ID = GetCellByName("CoinGecko API ID");
       var cellOfAnzahlDerCoins = GetCellByName("Anzahl der Coins");
