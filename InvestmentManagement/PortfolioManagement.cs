@@ -302,9 +302,9 @@ namespace InvestmentManagement
 
       for (int  i = 0;  i < cryptoRegisterDataList.Count;  i++)
       {
-        if (!(cryptoRegisterDataList[i].ContractAddress is null))
+        if (_contractAddress.Length > 0) 
         {
-          if (_contractAddress.Length > 0)
+          if (!(cryptoRegisterDataList[i].ContractAddress is null))
           {
             if (cryptoRegisterDataList[i].ContractAddress.Equals(_contractAddress))
             {
