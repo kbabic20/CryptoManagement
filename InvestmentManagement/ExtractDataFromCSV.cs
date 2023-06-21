@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.VisualBasic.FileIO;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace InvestmentManagement
 {
@@ -106,7 +107,7 @@ namespace InvestmentManagement
 
     public void ExtractCexData(string _path, Cex _cex)
     {
-      Console.WriteLine("-------------ExtractData-------------");
+      Console.WriteLine("-------------ExtractCexData-------------");
 
       // Define the regular expression patterns to match numbers and non-numbers
       string numberPattern = @"-?\d+(\.\d+)?";
@@ -114,6 +115,7 @@ namespace InvestmentManagement
       // Create regular expression objects for both patterns
       Regex numberRegex = new Regex(numberPattern);
       Regex nonNumberRegex = new Regex(nonNumberPattern);
+      int dataFormat = 0;
 
       using (StreamReader reader = new StreamReader(_path))
       {
@@ -150,18 +152,18 @@ namespace InvestmentManagement
                   number[i] = decimal.Parse(numberString[i]);
                 }
 
-
                 CexBuySellInfo buySellInfo = new CexBuySellInfo
                 {
                   Plattfrom = Cex.Mexc.ToString(),//"Mexc",
-                  Pair = values[(int)Spalte.A], //.Replace("_", "/"),
+                  Pair = values[(int)Spalte.A].Replace("_", "/"),
                   Date = values[(int)Spalte.B],
                   BuyOrSell = values[(int)Spalte.C],
-                  Price = values[(int)Spalte.D], //numberString[0],
+                  Price = numberString[0],
                   PriceCurrency = values[(int)Spalte.D],
-                  RecievedAmount = values[(int)Spalte.E],
-                  AmountInvestedAfterFee = values[(int)Spalte.F],
-                  Fee = values[(int)Spalte.G]
+                  RecievedAmount = numberString[1],
+                  AmountInvestedAfterFee = numberString[2],
+                  Fee = numberString[3],
+                  FeeCurrency = nonNumberString[3]
                 };
 
                 cexBuySellInfoList.Add(buySellInfo);
@@ -182,14 +184,15 @@ namespace InvestmentManagement
                 CexBuySellInfo buySellInfo = new CexBuySellInfo
                 {
                   Plattfrom = Cex.Kucoin.ToString(),//"Kucoin",
-                  Pair = values[(int)Spalte.D],//.Replace("-", "/"),
+                  Pair = values[(int)Spalte.D].Replace("-", "/"),
                   Date = values[(int)Spalte.A],
                   BuyOrSell = values[(int)Spalte.E],
                   Price = values[(int)Spalte.L],
                   PriceCurrency = values[(int)Spalte.N],
                   RecievedAmount = values[(int)Spalte.J],
                   AmountInvestedAfterFee = values[(int)Spalte.K],
-                  Fee = values[(int)Spalte.M]
+                  Fee = values[(int)Spalte.M],
+                  FeeCurrency = values[(int)Spalte.N]
                 };
 
                 cexBuySellInfoList.Add(buySellInfo);
@@ -198,15 +201,32 @@ namespace InvestmentManagement
             case Cex.Binance:
               {
                 bool isSubOrder = false;
+                
+                // Skip first line
+                if (line.Equals("Date(UTC);Pair;Type;Order Price;Order Amount;AvgTrading Price;Filled;Total;status"))
+                {
+                  dataFormat = 1;
+                  continue;
+                }
+
+                // Skip first line
+                if (line.Equals(";Date(UTC);Trading Price;Filled;Total;Fee;;;"))
+                {
+                  dataFormat = 1;
+                  continue;
+                }
+
                 // Skip first line
                 if (line.Equals("Date(UTC);OrderNo;Pair;Type;Order Price;Order Amount;AvgTrading Price;Filled;Total;status"))
                 {
+                  dataFormat = 2;
                   continue;
                 }
 
                 // Skip first line
                 if (line.Equals(";Date(UTC);Trading Price;Filled;Total;Fee;;;;"))
                 {
+                  dataFormat = 2;
                   continue;
                 }
 
@@ -222,37 +242,93 @@ namespace InvestmentManagement
                   isSubOrder = false;
                 }
 
-                if (!isSubOrder)
+                switch (dataFormat)
                 {
-                  CexBuySellInfo buySellInfo = new CexBuySellInfo
-                  {
-                    Plattfrom = Cex.Binance.ToString(),
-                    Pair = values[(int)Spalte.C],
-                    Date = values[(int)Spalte.A],
-                    BuyOrSell = values[(int)Spalte.D],
-                    Price = values[(int)Spalte.G],
-                    PriceCurrency = values[(int)Spalte.C],
-                    RecievedAmount = values[(int)Spalte.F],
-                    AmountInvestedAfterFee = values[(int)Spalte.I],
-                    Fee = ""
-                  };
+                  case 1:
+                    if (!isSubOrder)
+                    {
+                      CexBuySellInfo buySellInfo = new CexBuySellInfo
+                      {
+                        Plattfrom = Cex.Binance.ToString(),
+                        Date = values[(int)Spalte.A],
+                        Pair = SplitBinancePair(values[(int)Spalte.B]),
+                        PriceCurrency = values[(int)Spalte.B],
+                        BuyOrSell = values[(int)Spalte.C],
+                        Price = values[(int)Spalte.F],
+                        RecievedAmount = values[(int)Spalte.G],
+                        AmountInvestedAfterFee = values[(int)Spalte.H],
+                        Fee = ""
+                      };
 
-                  cexBuySellInfoList.Add(buySellInfo);
+                      cexBuySellInfoList.Add(buySellInfo);
 
+                    }
+                    else
+                    {
+                      if (cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee.Length > 0)
+                      {
+                        // Extract the number and non-number substrings using regular expressions
+                        string numberString = numberRegex.Match(values[(int)Spalte.F]).Value;
+                        string nonNumberString = nonNumberRegex.Match(values[(int)Spalte.F]).Value;
+
+                        cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee = (decimal.Parse(cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee) + decimal.Parse(numberString)).ToString(CultureInfo.InvariantCulture); 
+                        cexBuySellInfoList[cexBuySellInfoList.Count - 1].FeeCurrency = nonNumberString;
+                      }
+                      else
+                      {
+                        // Extract the number and non-number substrings using regular expressions
+                        string numberString = numberRegex.Match(values[(int)Spalte.F]).Value;
+                        string nonNumberString = nonNumberRegex.Match(values[(int)Spalte.F]).Value;
+
+                        cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee = numberString;
+                        cexBuySellInfoList[cexBuySellInfoList.Count - 1].FeeCurrency = nonNumberString;
+                      }
+                    }
+                    break;
+                  case 2:
+                    if (!isSubOrder)
+                    {
+                      CexBuySellInfo buySellInfo = new CexBuySellInfo
+                      {
+                        Plattfrom = Cex.Binance.ToString(),
+                        Date = values[(int)Spalte.A],
+                        Pair = SplitBinancePair(values[(int)Spalte.C]),
+                        PriceCurrency = values[(int)Spalte.C],
+                        BuyOrSell = values[(int)Spalte.D],
+                        Price = values[(int)Spalte.G],
+                        RecievedAmount = values[(int)Spalte.H],
+                        AmountInvestedAfterFee = values[(int)Spalte.I],
+                        Fee = ""
+                      };
+
+                      cexBuySellInfoList.Add(buySellInfo);
+
+                    }
+                    else
+                    {
+                      if (cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee.Length > 0)
+                      {
+                        // Extract the number and non-number substrings using regular expressions
+                        string numberString = numberRegex.Match(values[(int)Spalte.F]).Value;
+                        string nonNumberString = nonNumberRegex.Match(values[(int)Spalte.F]).Value;
+
+                        cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee = (decimal.Parse(cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee) + decimal.Parse(numberString)).ToString(CultureInfo.InvariantCulture);
+                        cexBuySellInfoList[cexBuySellInfoList.Count - 1].FeeCurrency = nonNumberString;
+                      }
+                      else
+                      {
+                        // Extract the number and non-number substrings using regular expressions
+                        string numberString = numberRegex.Match(values[(int)Spalte.F]).Value;
+                        string nonNumberString = nonNumberRegex.Match(values[(int)Spalte.F]).Value;
+
+                        cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee = numberString;
+                        cexBuySellInfoList[cexBuySellInfoList.Count - 1].FeeCurrency = nonNumberString;
+                      }
+                    }
+                    break;
+                  default:
+                    break;
                 }
-                else
-                {
-                  if (cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee.Length > 0)
-                  {
-
-                    cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee += "+" + values[(int)Spalte.F];
-                  }
-                  else
-                  {
-                    cexBuySellInfoList[cexBuySellInfoList.Count - 1].Fee = values[(int)Spalte.F];
-                  }
-                }
-
               }
 
               break;
@@ -265,6 +341,24 @@ namespace InvestmentManagement
       }
     }
 
+    string SplitBinancePair(string _input)
+    {
+      // Define the suffixes to check
+      string[] suffixes = { "EUR", "USDT", "BTC", "BNB", "ETC" , "BUSD", "ETH"};
+      string results = "";
+      // Iterate over the suffixes and check if the input string ends with any of them
+      foreach (string suffix in suffixes)
+      {
+        if (_input.EndsWith(suffix))
+        {
+          // If the input string ends with a suffix, split it into two parts
+          int suffixLength = suffix.Length;
+          results = _input.Substring(0, _input.Length - suffixLength);
+          results += "/" + _input.Substring(_input.Length - suffixLength);
+        }
+      }
+      return results;
+    }
     public void ExtractNetworkTxnData(string _path, Network _network)
     {
       Console.WriteLine("-------------ExtractNetworkTxnData-------------");

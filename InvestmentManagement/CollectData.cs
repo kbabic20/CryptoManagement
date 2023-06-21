@@ -164,22 +164,24 @@ namespace InvestmentManagement
 
         nameOfCex = split[split.Length - 2];
 
-        switch (Enum.Parse(typeof(ExtractDataFromCSV.Cex), nameOfCex))
-        {
-          case ExtractDataFromCSV.Cex.Mexc:
-            extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Mexc);
-            break;
-          case ExtractDataFromCSV.Cex.Kucoin:
-            extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Kucoin);
-            break;
-          case ExtractDataFromCSV.Cex.Binance:
-            extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Binance);
-            break;
-          case ExtractDataFromCSV.Cex.Okx:
-            extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Okx);
-            break;
-        }
-        
+        //switch (Enum.Parse(typeof(ExtractDataFromCSV.Cex), nameOfCex))
+        //{
+        //  case ExtractDataFromCSV.Cex.Mexc:
+        //    extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Mexc);
+        //    break;
+        //  case ExtractDataFromCSV.Cex.Kucoin:
+        //    extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Kucoin);
+        //    break;
+        //  case ExtractDataFromCSV.Cex.Binance:
+        //    extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Binance);
+        //    break;
+        //  case ExtractDataFromCSV.Cex.Okx:
+        //    extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, ExtractDataFromCSV.Cex.Okx);
+        //    break;
+        //}
+
+        extractDataFromCSV.ExtractCexData(_dirs[i] + "\\" + csvMergeFileName, (ExtractDataFromCSV.Cex)Enum.Parse(typeof(ExtractDataFromCSV.Cex), nameOfCex));
+
       }
     }
     void GoThroughEachNetworkTxnFolderExtract(List<string> _dirs)
@@ -242,7 +244,7 @@ namespace InvestmentManagement
 
       string worksheet = "Cex Kauf&Verkauf";
 
-      HandleExcel.ClearRange("A4", "Z1000", worksheet);
+      
 
       var cellOfDate = HandleExcel.GetCellByName("Datum", worksheet);
       var cellOfPair = HandleExcel.GetCellByName("Pair", worksheet);
@@ -251,9 +253,12 @@ namespace InvestmentManagement
       var cellOfRecievedAmount = HandleExcel.GetCellByName("Stückzahl", worksheet);
       var cellOfPrice = HandleExcel.GetCellByName("Preis pro Stück beim Kauf/Verkauf (bezogen auf das Pair)", worksheet);
       //var cellOfPriceCurrency = HandleExcel.GetCellByName("Stückzahl", worksheet);
-      var cellOfFee = HandleExcel.GetCellByName("Gebühren (bezogen auf das Pair)", worksheet);
+      var cellOfFee = HandleExcel.GetCellByName("Gebühren Preis", worksheet);
+      var cellOfFeeCurr = HandleExcel.GetCellByName("Gebühren Währung", worksheet);
       var cellOfAmountInvested = HandleExcel.GetCellByName("Gezahlt/Bekommen insgesamt (bezogen auf das Pair)", worksheet);
       var cellOfAmountInvestedAfterFee = HandleExcel.GetCellByName("Gezahlt/Bekommen ohne Gebühr (bezogen auf das Pair)", worksheet);
+
+      HandleExcel.ClearRange("A" + (cellOfDate.cellLine + 1).ToString(), "Z1000", worksheet);
 
       for (int i = 0; i < _buySellInfoList.Count; i++)
       {
@@ -262,6 +267,7 @@ namespace InvestmentManagement
         HandleExcel.SetTextInCell(_buySellInfoList[i].Plattfrom, cellOfDepot.cellLine + 1 + i, cellOfDepot.cellColum, worksheet);
         HandleExcel.SetTextInCell(_buySellInfoList[i].Pair, cellOfPair.cellLine + 1 + i, cellOfPair.cellColum, worksheet);
         HandleExcel.SetTextInCell(_buySellInfoList[i].Fee, cellOfFee.cellLine + 1 + i, cellOfFee.cellColum, worksheet);
+        HandleExcel.SetTextInCell(_buySellInfoList[i].FeeCurrency, cellOfFeeCurr.cellLine + 1 + i, cellOfFeeCurr.cellColum, worksheet);
         HandleExcel.SetTextInCell(_buySellInfoList[i].BuyOrSell, cellOfBuy_Sell.cellLine + 1 + i, cellOfBuy_Sell.cellColum, worksheet);
         HandleExcel.SetTextInCell(_buySellInfoList[i].RecievedAmount, cellOfRecievedAmount.cellLine + 1 + i, cellOfRecievedAmount.cellColum, worksheet);
         //HandleExcel.SetTextInCell(_buySellInfoList[i].PriceCurrency, cellOfPriceCurrency.cellLine + 1 + i, cellOfPriceCurrency.cellColum, worksheet);
