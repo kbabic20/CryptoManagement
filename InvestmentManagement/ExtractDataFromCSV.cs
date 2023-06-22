@@ -18,7 +18,8 @@ namespace InvestmentManagement
       Kucoin,
       Binance,
       Okx,
-      CryptoCom
+      CryptoCom,
+      Xeggex
     }
     public enum Network
     {
@@ -55,6 +56,15 @@ namespace InvestmentManagement
     public List<CexBuySellInfo> cexBuySellInfoList = new List<CexBuySellInfo>();
     public List<NetworkTxnInfo> networkTxnInfoList = new List<NetworkTxnInfo>();
     public List<NetworkTokenTxnInfo> networkTokenTxnInfoList = new List<NetworkTokenTxnInfo>();
+
+    // Okx Convert variables
+    bool isFirstEntry = true;
+    string saveDate = "";
+
+    string pair = "";
+    string amount = "";
+    string buyOrSell = "";
+    decimal price = 0;
 
     public static DataTable GetDataFromCSV(string filePath)
     {
@@ -134,6 +144,11 @@ namespace InvestmentManagement
                   continue;
                 }
 
+                if (line.Equals("Paare,Zeit,Seite,Realisierter Preis,Ausgeführter Betrag,Gesamt,Gebühr,Rolle"))
+                {
+                  continue;
+                }
+
                 string[] values = line.Split(',');
                 int separateNumberCount = 4;
                 string[] input = new string[separateNumberCount];
@@ -152,9 +167,20 @@ namespace InvestmentManagement
                   number[i] = decimal.Parse(numberString[i]);
                 }
 
+                string feeCurr = "";
+
+                if (nonNumberString[3].Length > 0)
+                {
+                  feeCurr = nonNumberString[3];
+                }
+                else
+                {
+                  feeCurr = values[(int)Spalte.A].Split('_')[1];
+                }
+
                 CexBuySellInfo buySellInfo = new CexBuySellInfo
                 {
-                  Plattfrom = Cex.Mexc.ToString(),//"Mexc",
+                  Plattfrom = _cex.ToString(),//"Mexc",
                   Pair = values[(int)Spalte.A].Replace("_", "/"),
                   Date = values[(int)Spalte.B],
                   BuyOrSell = values[(int)Spalte.C],
@@ -163,12 +189,11 @@ namespace InvestmentManagement
                   RecievedAmount = numberString[1],
                   AmountInvestedAfterFee = numberString[2],
                   Fee = numberString[3],
-                  FeeCurrency = nonNumberString[3]
+                  FeeCurrency = feeCurr
                 };
 
                 cexBuySellInfoList.Add(buySellInfo);
               }
-
 
               break;
             case Cex.Kucoin:
@@ -183,7 +208,7 @@ namespace InvestmentManagement
 
                 CexBuySellInfo buySellInfo = new CexBuySellInfo
                 {
-                  Plattfrom = Cex.Kucoin.ToString(),//"Kucoin",
+                  Plattfrom = _cex.ToString(),//"Kucoin",
                   Pair = values[(int)Spalte.D].Replace("-", "/"),
                   Date = values[(int)Spalte.A],
                   BuyOrSell = values[(int)Spalte.E],
@@ -230,6 +255,13 @@ namespace InvestmentManagement
                   continue;
                 }
 
+                // Skip first line
+                if (line.Equals("Date(UTC);Market;Type;Price;Amount;Total;Fee;Fee Coin"))
+                {
+                  dataFormat = 3;
+                  continue;
+                }
+
                 string[] values = line.Split(';');
 
                 // Get sub orders
@@ -249,7 +281,7 @@ namespace InvestmentManagement
                     {
                       CexBuySellInfo buySellInfo = new CexBuySellInfo
                       {
-                        Plattfrom = Cex.Binance.ToString(),
+                        Plattfrom = _cex.ToString(),
                         Date = values[(int)Spalte.A],
                         Pair = SplitBinancePair(values[(int)Spalte.B]),
                         PriceCurrency = values[(int)Spalte.B],
@@ -290,7 +322,7 @@ namespace InvestmentManagement
                     {
                       CexBuySellInfo buySellInfo = new CexBuySellInfo
                       {
-                        Plattfrom = Cex.Binance.ToString(),
+                        Plattfrom = _cex.ToString(),
                         Date = values[(int)Spalte.A],
                         Pair = SplitBinancePair(values[(int)Spalte.C]),
                         PriceCurrency = values[(int)Spalte.C],
@@ -326,13 +358,152 @@ namespace InvestmentManagement
                       }
                     }
                     break;
+                  case 3:
+                    {
+                      CexBuySellInfo buySellInfo = new CexBuySellInfo
+                      {
+                        Plattfrom = _cex.ToString(),
+                        Date = values[(int)Spalte.A],
+                        Pair = SplitBinancePair(values[(int)Spalte.B]),
+                        PriceCurrency = values[(int)Spalte.B],
+                        BuyOrSell = values[(int)Spalte.C],
+                        Price = values[(int)Spalte.D],
+                        RecievedAmount = values[(int)Spalte.E],
+                        AmountInvestedAfterFee = values[(int)Spalte.F],
+                        Fee = values[(int)Spalte.G],
+                        FeeCurrency = values[(int)Spalte.H],
+                      };
+
+                      cexBuySellInfoList.Add(buySellInfo);
+                    }
+                    
+                    break;
                   default:
                     break;
                 }
               }
 
               break;
+            case Cex.CryptoCom:
+              {
+                // Skip first line
+                if (line.Equals("Timestamp (UTC),Transaction Description,Currency,Amount,To Currency,To Amount,Native Currency,Native Amount,Native Amount (in USD),Transaction Kind,Transaction Hash"))
+                {
+                  continue;
+                }
+
+                string[] values = line.Split(',');
+
+
+                string buyOrSell = "";
+                decimal price = 0;
+
+                if (values[(int)Spalte.J].Contains("crypto_purchase"))
+                {
+                  buyOrSell = "Buy";
+                  price = decimal.Parse(values[(int)Spalte.H]) / decimal.Parse(values[(int)Spalte.D]);
+
+                  CexBuySellInfo buySellInfo = new CexBuySellInfo
+                  {
+                    Date = values[(int)Spalte.A],
+                    Plattfrom = _cex.ToString(),
+                    Pair = values[(int)Spalte.C] + "/" + values[(int)Spalte.G],
+                    BuyOrSell = buyOrSell,
+                    Price = price.ToString(CultureInfo.InvariantCulture),
+                    PriceCurrency = values[(int)Spalte.G],
+                    RecievedAmount = values[(int)Spalte.D],
+                    AmountInvestedAfterFee = values[(int)Spalte.H],
+                    Fee = "0",
+                    FeeCurrency = "N/A"
+                  };
+
+                  cexBuySellInfoList.Add(buySellInfo);
+                }
+                else if (values[(int)Spalte.J].Contains("rewards_platform_deposit_credited") || values[(int)Spalte.J].Contains("admin_wallet_credited"))
+                {
+                  buyOrSell = "Reward";
+
+                  CexBuySellInfo buySellInfo = new CexBuySellInfo
+                  {
+                    Date = values[(int)Spalte.A],
+                    Plattfrom = _cex.ToString(),
+                    Pair = values[(int)Spalte.C] + "/" + values[(int)Spalte.G],
+                    BuyOrSell = buyOrSell,
+                    Price = "0",
+                    PriceCurrency = values[(int)Spalte.G],
+                    RecievedAmount = values[(int)Spalte.D],
+                    AmountInvestedAfterFee = "0",
+                    Fee = "0",
+                    FeeCurrency = "N/A"
+                  };
+
+                  cexBuySellInfoList.Add(buySellInfo);
+                }
+                else if (values[(int)Spalte.J].Contains("crypto_exchange"))
+                {
+                  buyOrSell = "Buy";
+                  price = decimal.Parse(values[(int)Spalte.H]) / decimal.Parse(values[(int)Spalte.F]);
+
+                  CexBuySellInfo buySellInfo = new CexBuySellInfo
+                  {
+                    Date = values[(int)Spalte.A],
+                    Plattfrom = _cex.ToString(),
+                    Pair = values[(int)Spalte.E] + "/" + values[(int)Spalte.G],
+                    BuyOrSell = buyOrSell,
+                    Price = "0",
+                    PriceCurrency = values[(int)Spalte.G],
+                    RecievedAmount = values[(int)Spalte.F],
+                    AmountInvestedAfterFee = values[(int)Spalte.H],
+                    Fee = "0",
+                    FeeCurrency = "N/A"
+                  };
+
+                  cexBuySellInfoList.Add(buySellInfo);
+                }
+              }
+              
+              break;
+            case Cex.Xeggex:
+              {
+                // Skip first line
+                if (line.Equals("Type,Time,Market,Side,Price,Quantity,TotalWithFee,AlternateFee"))
+                {
+                  continue;
+                }
+
+                string[] values = SplitString(line);
+
+                CexBuySellInfo buySellInfo = new CexBuySellInfo
+                {
+                  Plattfrom = _cex.ToString(),
+                  Pair = values[(int)Spalte.C],
+                  Date = values[(int)Spalte.B],
+                  BuyOrSell = values[(int)Spalte.D],
+                  Price = values[(int)Spalte.E],
+                  PriceCurrency = values[(int)Spalte.C],
+                  RecievedAmount = values[(int)Spalte.F],
+                  AmountInvestedAfterFee = values[(int)Spalte.G]
+                };
+
+                cexBuySellInfoList.Add(buySellInfo);
+              }
+              break;
             case Cex.Okx:
+              {
+                // Skip first line
+                if (line.Equals("UID:425832338606700738,﻿Name:,﻿Verification:"))
+                {
+                  continue;
+                }
+
+                // Skip second line
+                if (line.Equals("﻿id,Time,Type,Amount,Before Balance,After Balance,Fee,Symbol"))
+                {
+                  continue;
+                }
+
+                OkxCoinConvert(line, _cex.ToString());
+              }
               break;
             default:
               break;
@@ -359,6 +530,82 @@ namespace InvestmentManagement
       }
       return results;
     }
+
+    static string[] SplitString(string _input)
+    {
+      string[] parts = new string[8];
+      int startIndex = 0;
+      int endIndex = 0;
+      int partIndex = 0;
+      bool insideQuotes = false;
+
+      for (int i = 0; i < _input.Length; i++)
+      {
+        if (_input[i] == '"')
+        {
+          insideQuotes = !insideQuotes;
+        }
+
+        if (_input[i] == ',' && !insideQuotes)
+        {
+          endIndex = i;
+          parts[partIndex] = _input.Substring(startIndex , endIndex - startIndex ).Replace("\"","");
+          startIndex = endIndex + 1;
+          partIndex++;
+        }
+      }
+
+      // Last part
+      parts[partIndex] = _input.Substring(startIndex , _input.Length - startIndex );
+
+      return parts;
+    }
+
+    void OkxCoinConvert(string _input, string _cexName)
+    {
+      string[] values = _input.Split(',');
+
+      
+      
+
+      if (values[(int)Spalte.C].Equals("Convert"))
+      {
+        if (isFirstEntry)
+        {
+          saveDate = values[(int)Spalte.B];
+          pair = values[(int)Spalte.H];
+          amount = values[(int)Spalte.D];
+          buyOrSell = "Buy";
+          isFirstEntry = false;
+        }
+        else
+        {
+          if (values[(int)Spalte.B].Equals(saveDate))
+          {
+            pair += "/" + values[(int)Spalte.H];
+            decimal paid = decimal.Parse(values[(int)Spalte.D].Replace("-", ""), CultureInfo.InvariantCulture);
+            price = paid / decimal.Parse(amount, CultureInfo.InvariantCulture);
+
+            CexBuySellInfo buySellInfo = new CexBuySellInfo
+            {
+              Plattfrom = _cexName,
+              Pair = pair,
+              Date = saveDate,
+              BuyOrSell = buyOrSell,
+              Price = price.ToString(CultureInfo.InvariantCulture),
+              PriceCurrency = values[(int)Spalte.H],
+              RecievedAmount = amount,
+              AmountInvestedAfterFee = paid.ToString(CultureInfo.InvariantCulture)
+            };
+
+            cexBuySellInfoList.Add(buySellInfo);
+          }
+
+        }
+      }
+    }
+
+
     public void ExtractNetworkTxnData(string _path, Network _network)
     {
       Console.WriteLine("-------------ExtractNetworkTxnData-------------");
