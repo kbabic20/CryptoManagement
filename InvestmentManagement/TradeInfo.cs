@@ -72,6 +72,20 @@ namespace InvestmentManagement
     public decimal AvgGain { get; set; }
     public decimal CurrPrice { get; set; }
   }
+  public class DepotInventory
+  {
+    public string DepotName { get; set; }
+    public List<CoinInfo> CoinInfos { get; set; }
+  }
+
+  public class CoinInfo
+  {
+    public string Name { get; set; }
+    public string Symbol { get; set; }
+    public string ContractAddress { get; set; }
+    public string Network { get; set; }
+    public decimal AmountHolding { get; set; }
+  }
 
   public class MyWallet
   {

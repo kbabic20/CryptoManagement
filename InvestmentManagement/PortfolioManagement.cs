@@ -9,7 +9,24 @@ namespace InvestmentManagement
   class PortfolioManagement
   {
 
+    class DataInfo
+    {
+      public string DateOfTxn { get; set; }
+      public string CoinName { get; set; }
+      public string CoinSymbol { get; set; }
+      public string ContractAddress { get; set; }
+      public string CoinGeckoApiID { get; set; }
+      public string Network { get; set; }
+      public decimal AmountOfCoin { get; set; }
+      public decimal AvgBuyPrice { get; set; }
+      public decimal AvgGain { get; set; }
+      public decimal CurrPrice { get; set; }
+      public string DepotName { get; set; }
+    }
+
+
     List<Portfolio> portfolioList = new List<Portfolio>();
+    List<DepotInventory> depotInventoryList = new List<DepotInventory>();
     List<MyWallet> myWalletsList = new List<MyWallet>();
     List<CryptoRegisterData> cryptoRegisterDataList = new List<CryptoRegisterData>();
 
@@ -130,6 +147,8 @@ namespace InvestmentManagement
       var cellOfDate = HandleExcel.GetCellByName("Datum", worksheet);
       var cellOfNetwork = HandleExcel.GetCellByName("Network", worksheet);
       var cellOfNetworkCurrency = HandleExcel.GetCellByName("Network Currency", worksheet);
+      var cellOfFrom = HandleExcel.GetCellByName("From", worksheet);
+      var cellOfTo = HandleExcel.GetCellByName("To", worksheet);
       var cellOfValueIn = HandleExcel.GetCellByName("Value In", worksheet);
       var cellOfValueOut = HandleExcel.GetCellByName("Value Out", worksheet);
       var cellOfMethod = HandleExcel.GetCellByName("Method", worksheet);
@@ -138,16 +157,32 @@ namespace InvestmentManagement
 
       int i = 1;
 
-      while(HandleExcel.GetDateFromCell(cellOfDate.cellLine + i , cellOfDate.cellColum, worksheet).Ticks > 0 )
+      string walletName = "";
+      int depotListIndex;
+      int coinDepotListIndex;
+
+      DateTime date = new DateTime();
+
+      while (HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet).Ticks > 0 )
       {
+        date = HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet);
 
         string network = HandleExcel.GetTextFromCell(cellOfNetwork.cellLine + i, cellOfNetwork.cellColum, worksheet);
         string networkCurrency = HandleExcel.GetTextFromCell(cellOfNetworkCurrency.cellLine + i, cellOfNetworkCurrency.cellColum, worksheet);
         string status = HandleExcel.GetTextFromCell(cellOfStatus.cellLine + i, cellOfStatus.cellColum, worksheet);
         string method = HandleExcel.GetTextFromCell(cellOfMethod.cellLine + i, cellOfMethod.cellColum, worksheet);
+        string walletFrom = HandleExcel.GetTextFromCell(cellOfFrom.cellLine + i, cellOfFrom.cellColum, worksheet);
+        string walletTo = HandleExcel.GetTextFromCell(cellOfTo.cellLine + i, cellOfTo.cellColum, worksheet);
         decimal valueIn = (decimal) HandleExcel.GetDecimalFromCell(cellOfValueIn.cellLine + i, cellOfValueIn.cellColum, worksheet);
         decimal valueOut = (decimal) HandleExcel.GetDecimalFromCell(cellOfValueOut.cellLine + i, cellOfValueOut.cellColum, worksheet);
         decimal txnFeeNative = (decimal)HandleExcel.GetDecimalFromCell(cellOfTxnFeeNative.cellLine + i, cellOfTxnFeeNative.cellColum, worksheet);
+
+        DataInfo dataInfo = new DataInfo
+        {
+          DateOfTxn = date.ToString(),
+          CoinSymbol = networkCurrency,
+          Network = network
+        };
 
         decimal amount = 0;
         if (!IsCoinInList(network, networkCurrency, "", true))
@@ -168,6 +203,7 @@ namespace InvestmentManagement
               if (valueIn > 0)
               {
                 amount = valueIn;
+                dataInfo.DepotName = GetMyWalletName(walletTo);
 
               }
               else if (valueOut > 0 )
@@ -180,11 +216,21 @@ namespace InvestmentManagement
                 {
                   amount = valueOut * (-1) - txnFeeNative;
                 }
-                
+
+                dataInfo.DepotName = GetMyWalletName(walletFrom);
+              }
+              else
+              {
+                amount = txnFeeNative * (-1);
+                dataInfo.DepotName = GetMyWalletName(walletFrom);
               }
 
+              dataInfo.AmountOfCoin = amount;
 
               portfolioList[coinIndexPortfolio].AmountHolding += amount;
+
+              AddCoinToDepotList(dataInfo);
+
             }
           }
         }
@@ -197,7 +243,8 @@ namespace InvestmentManagement
 
             if (valueIn > 0)
             {
-              amount = valueIn;
+              amount = valueIn; 
+              dataInfo.DepotName = GetMyWalletName(walletTo);
 
             }
             else if (valueOut > 0)
@@ -218,13 +265,76 @@ namespace InvestmentManagement
                 amount = valueOut * (-1) - txnFeeNative;
               }
 
+              dataInfo.DepotName = GetMyWalletName(walletFrom);
+            }
+            else
+            {
+              amount = txnFeeNative * (-1);
+              dataInfo.DepotName = GetMyWalletName(walletFrom);
             }
 
+            dataInfo.AmountOfCoin = amount;
+
             portfolioList[coinIndexPortfolio].AmountHolding += amount;
+
+
+            AddCoinToDepotList(dataInfo);
           }
         }
 
         i++;
+      }
+    }
+
+    void AddCoinToDepotList(DataInfo _dataInfo)
+    {
+
+      int depotListIndex;
+      int coinDepotListIndex;
+
+      if (IsDepotInList(_dataInfo.DepotName, out depotListIndex))
+      {
+        if (IsCoinInDepot(_dataInfo, depotListIndex, out coinDepotListIndex))
+        {
+          depotInventoryList[depotListIndex].CoinInfos[coinDepotListIndex].AmountHolding += _dataInfo.AmountOfCoin;
+        }
+        else
+        {
+          CoinInfo coinInfo = new CoinInfo
+          {
+            Symbol = _dataInfo.CoinSymbol,
+            Network = _dataInfo.Network,
+            AmountHolding = _dataInfo.AmountOfCoin,
+            ContractAddress = _dataInfo.ContractAddress,
+            Name = _dataInfo.CoinName
+          };
+
+          depotInventoryList[depotListIndex].CoinInfos.Add(coinInfo);
+        }
+
+      }
+      else
+      {
+        DepotInventory depotInventory = new DepotInventory
+        {
+
+          DepotName = _dataInfo.DepotName,
+          CoinInfos = new List<CoinInfo>()
+
+        };
+
+        depotInventoryList.Add(depotInventory);
+
+        CoinInfo coinInfo = new CoinInfo
+        {
+          Symbol = _dataInfo.CoinSymbol,
+          Network = _dataInfo.Network,
+          AmountHolding = _dataInfo.AmountOfCoin,
+          ContractAddress = _dataInfo.ContractAddress,
+          Name = _dataInfo.CoinName
+        };
+
+        depotInventoryList[depotInventoryList.Count -1].CoinInfos.Add(coinInfo);
       }
     }
 
@@ -251,11 +361,13 @@ namespace InvestmentManagement
           {
             if (portfolioList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
             {
-              if (portfolioList[i].Network.ToLower().Equals(_name.ToLower()))
-              {
-                isCoinInList = true;
-                break;
-              }
+              //if (portfolioList[i].Network.ToLower().Equals(_name.ToLower()))
+              //{
+              //  isCoinInList = true;
+              //  break;
+              //}
+              isCoinInList = true;
+              break;
             }
           }
           else
@@ -428,6 +540,124 @@ namespace InvestmentManagement
 
     }
 
+    bool IsDepotInList(string _depotName, out int _index)
+    {
+      for (int i = 0; i < depotInventoryList.Count; i++)
+      {
+        if (depotInventoryList[i].DepotName.Equals(_depotName))
+        {
+          _index = i;
+          return true;
+        }
+      }
+      _index = -1;
+      return false;
+    }
+
+    bool IsCoinInDepot(DataInfo _dataInfo, int _depotIndex, out int _coinIndex)
+    {
+      _coinIndex = -1;
+
+      if (_dataInfo.CoinName is null && _dataInfo.ContractAddress is null &&!(_dataInfo.CoinSymbol is null) && !(_dataInfo.Network is null))
+      {
+        // NetworkTxn Data
+        return IsCoinInDepot(_dataInfo.Network, _dataInfo.CoinSymbol, "", true, _depotIndex, out _coinIndex);
+      }
+      else if (_dataInfo.CoinName is null && _dataInfo.ContractAddress is null && _dataInfo.ContractAddress is null)
+      {
+        // CEX Data
+        return IsCoinInDepot(_dataInfo.CoinSymbol, _depotIndex, out _coinIndex);
+      }
+      else
+      {
+        // NetworkTokenTxn Data
+        return IsCoinInDepot(_dataInfo.CoinName, _dataInfo.CoinSymbol, _dataInfo.ContractAddress, false, _depotIndex, out _coinIndex);
+      }
+
+    }
+    bool IsCoinInDepot(string _name, string _symbol, string _contractAddress, bool _isNetworkCoin, int depotIndex,out int _coinIndex)
+
+    {
+      bool isCoinInList = false;
+      _coinIndex = -1;
+
+      if (_contractAddress.Length > 0)
+      {
+        for (int i = 0; i < depotInventoryList[depotIndex].CoinInfos.Count; i++)
+        {
+          if (!(depotInventoryList[depotIndex].CoinInfos[i].ContractAddress is null))
+          {
+            if (depotInventoryList[depotIndex].CoinInfos[i].ContractAddress.Equals(_contractAddress))
+            {
+              isCoinInList = true;
+              _coinIndex = i;
+              break;
+            }
+          }
+          
+        }
+      }
+      else
+      {
+        for (int i = 0; i < depotInventoryList[depotIndex].CoinInfos.Count; i++)
+        {
+          if (_isNetworkCoin)
+          {
+            if (depotInventoryList[depotIndex].CoinInfos[i].Symbol.ToLower().Equals(_symbol.ToLower()))
+            {
+              //if (depotInventoryList[depotIndex].CoinInfos[i].Network.ToLower().Equals(_name.ToLower()))
+              //{
+              //  isCoinInList = true;
+              //  _coinIndex = i;
+              //  break;
+              //}
+              isCoinInList = true;
+              _coinIndex = i;
+              break;
+            }
+          }
+          else
+          {
+            if (depotInventoryList[depotIndex].CoinInfos[i].Symbol.ToLower().Equals(_symbol.ToLower()))
+            {
+              if (depotInventoryList[depotIndex].CoinInfos[i].Name.ToLower().Equals(_name.ToLower()))
+              {
+                isCoinInList = true;
+                _coinIndex = i;
+                break;
+              }
+            }
+          }
+
+
+        }
+      }
+
+      return isCoinInList;
+
+    }
+    bool IsCoinInDepot( string _symbol, int depotIndex, out int _coinIndex)
+
+    {
+      bool isCoinInList = false;
+
+      _coinIndex = -1;
+
+      for (int i = 0; i < depotInventoryList[depotIndex].CoinInfos.Count; i++)
+      {
+        if (depotInventoryList[depotIndex].CoinInfos[i].Symbol.ToLower().Equals(_symbol.ToLower()))
+        {
+          isCoinInList = true;
+          _coinIndex = i;
+          break;
+        }
+
+      }
+
+      return isCoinInList;
+
+    }
+
     int GetIndexOfCoinInPortfolio(string _name, string _symbol, string _contractAddress, bool _isNetworkCoin)
     {
       int index = -1;
@@ -506,8 +736,12 @@ namespace InvestmentManagement
 
       int i = 1;
 
+      DateTime date = new DateTime();
+
       while (HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet).Ticks > 0)
       {
+
+        date = HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet);
 
         string network = HandleExcel.GetTextFromCell(cellOfNetwork.cellLine + i, cellOfNetwork.cellColum, worksheet);
         string networkCurrency = HandleExcel.GetTextFromCell(cellOfNetworkCurrency.cellLine + i, cellOfNetworkCurrency.cellColum, worksheet);
@@ -520,22 +754,31 @@ namespace InvestmentManagement
 
         decimal amount = 0;
 
-        if (tokenSymbol.Equals("ZNT"))
+
+        DataInfo dataInfo = new DataInfo
         {
-          Console.WriteLine("Test");
-        }
+          DateOfTxn = date.ToString(),
+          CoinSymbol = tokenSymbol,
+          Network = network,
+          CoinName = tokenName,
+          ContractAddress = contractAddress
+          
+        };
+
 
         if (!IsMyWallet(walletFrom) && IsMyWallet(walletTo))
         {
           // Token was added to my wallets
 
           amount = tokenAmount;
+          dataInfo.DepotName = GetMyWalletName(walletTo);
         }
         else if (IsMyWallet(walletFrom) && !IsMyWallet(walletTo))
         {
           // Token was removed to my wallets
 
           amount = tokenAmount * (-1);
+          dataInfo.DepotName = GetMyWalletName(walletFrom);
         }
 
 
@@ -544,7 +787,7 @@ namespace InvestmentManagement
           if (!IsCoinInExcelRegister(tokenName, tokenSymbol, contractAddress, false))
           {
             //TODo Fehlermeldung Pop Up
-            Console.WriteLine("This Token '" + tokenName + "' with this token symbol '" + tokenSymbol + "' is not in the Excel Register!! Pls add it manuelly");
+            Console.WriteLine("This Token '" + tokenName + "' with this token symbol '" + tokenSymbol + "' in this network '" + network + "' in this network '" + network + "' in this network this contrac adress'" + contractAddress + "' is not in the Excel Register!! Pls add it manuelly");
           }
           else
           {
@@ -553,6 +796,10 @@ namespace InvestmentManagement
             if (coinIndexPortfolio != -1)
             {
               portfolioList[coinIndexPortfolio].AmountHolding += amount;
+
+              dataInfo.AmountOfCoin = amount;
+
+              AddCoinToDepotList(dataInfo);
             }
           }
         }
@@ -564,6 +811,10 @@ namespace InvestmentManagement
           {
 
             portfolioList[coinIndexPortfolio].AmountHolding += amount;
+
+            dataInfo.AmountOfCoin = amount;
+
+            AddCoinToDepotList(dataInfo);
           }
         }
 
@@ -574,7 +825,7 @@ namespace InvestmentManagement
     bool IsMyWallet(string _walletAddress)
     {
 
-      Console.WriteLine("-------------IsMyWallet-------------");
+      //Console.WriteLine("-------------IsMyWallet-------------");
 
       for (int i = 0; i < myWalletsList.Count; i++)
       {
@@ -585,6 +836,21 @@ namespace InvestmentManagement
       }
 
       return false;
+    }
+    string GetMyWalletName(string _walletAddress)
+    {
+
+      //Console.WriteLine("-------------IsMyWallet-------------");
+
+      for (int i = 0; i < myWalletsList.Count; i++)
+      {
+        if (myWalletsList[i].Address.Equals(_walletAddress))
+        {
+          return myWalletsList[i].Name;
+        }
+      }
+
+      return "";
     }
 
     void WriteNewCryptoRegisterDataIntoExcel()
@@ -671,8 +937,12 @@ namespace InvestmentManagement
 
       int i = 1;
 
-      while (HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet).Ticks > 0)
+      DateTime date = new DateTime();
+
+      while (HandleExcel.GetTextFromCell(cellOfDepot.cellLine + i, cellOfDepot.cellColum, worksheet).Length > 0)
       {
+
+       // date = HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet);
 
         string pair = HandleExcel.GetTextFromCell(cellOfPair.cellLine + i, cellOfPair.cellColum, worksheet);
         string buy_Sell = HandleExcel.GetTextFromCell(cellOfBuy_Sell.cellLine + i, cellOfBuy_Sell.cellColum, worksheet);
@@ -680,6 +950,14 @@ namespace InvestmentManagement
         decimal recievedAmount = (decimal)HandleExcel.GetDecimalFromCell(cellOfRecievedAmount.cellLine + i, cellOfRecievedAmount.cellColum, worksheet);
 
         string coinSymbol = GetCoinOutOfPair(pair);
+
+        DataInfo dataInfo = new DataInfo
+        {
+          //DateOfTxn = date.ToString(),
+          CoinSymbol = coinSymbol,
+          DepotName = depot
+
+        };
 
         if (buy_Sell.ToLower().Equals("sell"))
         {
@@ -700,6 +978,10 @@ namespace InvestmentManagement
             if (coinIndexPortfolio != -1)
             {
               portfolioList[coinIndexPortfolio].AmountHolding += recievedAmount;
+
+              dataInfo.AmountOfCoin = recievedAmount;
+
+              AddCoinToDepotList(dataInfo);
             }
           }
         }
@@ -711,6 +993,10 @@ namespace InvestmentManagement
           {
 
             portfolioList[coinIndexPortfolio].AmountHolding += recievedAmount;
+
+            dataInfo.AmountOfCoin = recievedAmount;
+
+            AddCoinToDepotList(dataInfo);
           }
         }
 
@@ -739,6 +1025,7 @@ namespace InvestmentManagement
       var cellOfAmountOverAll = HandleExcel.GetCellByName("Stückzahl Insgesamt", worksheet);
       var cellOfCoinGeckoApiId = HandleExcel.GetCellByName("CoinGecko API ID", worksheet);
       var cellOfAmountOfCoins = HandleExcel.GetCellByName("Anzahl der Coins", worksheet);
+      var cellOfDepots = HandleExcel.GetCellByName("Depots", worksheet);
 
 
       HandleExcel.ClearRange("A" + (cellOfAmountOfCoins.cellLine + 1).ToString(), "Z1000", worksheet);
@@ -752,9 +1039,30 @@ namespace InvestmentManagement
         HandleExcel.SetTextInCell(portfolioList[i].Name, cellOfName.cellLine + 1 + i, cellOfName.cellColum, worksheet);
         HandleExcel.SetTextInCell(portfolioList[i].Symbol, cellOfSymbol.cellLine + 1 + i, cellOfSymbol.cellColum, worksheet);
         HandleExcel.SetDecimalValueInCell(portfolioList[i].AmountHolding, cellOfAmountOverAll.cellLine + 1 + i, cellOfAmountOverAll.cellColum, worksheet);
+
+        int indexDepotColum = 0;
+        while (HandleExcel.GetTextFromCell(cellOfDepots.cellLine + 1, cellOfDepots.cellColum + indexDepotColum, worksheet).Length > 0 )
+        {
+          string depot = HandleExcel.GetTextFromCell(cellOfDepots.cellLine + 1, cellOfDepots.cellColum + indexDepotColum, worksheet);
+
+          for (int j = 0; j < depotInventoryList.Count; j++)
+          {
+            if (depotInventoryList[j].DepotName.ToLower().Equals(depot.ToLower()))
+            {
+              for (int k = 0; k < depotInventoryList[j].CoinInfos.Count; k++)
+              {
+                if (depotInventoryList[j].CoinInfos[k].Symbol.Equals(portfolioList[i].Symbol))
+                {
+
+                  HandleExcel.SetDecimalValueInCell(depotInventoryList[j].CoinInfos[k].AmountHolding, cellOfSymbol.cellLine + 1 + i, cellOfDepots.cellColum + indexDepotColum, worksheet);
+                }
+              }
+              break;
+            }
+          }
+          indexDepotColum++;
+        }
       }
-
-
     }
   }
 }
