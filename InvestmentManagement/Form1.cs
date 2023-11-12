@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
+using InvestmentManagement.Services;
 
 namespace InvestmentManagement
 {
@@ -79,6 +80,7 @@ namespace InvestmentManagement
       txt_StatusLeiste.Text = "";
       CollectData collectData = new CollectData();
       collectData.ExtractDataAndInsertInExcel(documentFolder, "");
+      collectData.UploadTradeInfosToMongoDb();
       txt_StatusLeiste.Text = "CollBuySellCryptos is finished.";
 
     }// Click_btn_CollBuySellCryptos
@@ -98,6 +100,15 @@ namespace InvestmentManagement
       txt_StatusLeiste.Text = "CreateCryptoRegister is finished.";
 
     }// Click_btn_CreateCryptoRegister
+    private async void Click_btn_GetNetworkScannerTransactions(object sender, System.EventArgs e)
+    {
+      txt_StatusLeiste.Text = "";
+      BlockScanService blockScanService = new BlockScanService();
+      await blockScanService.GetBlockScannerNetworkTxn();
+
+      txt_StatusLeiste.Text = "GetNetworkScannerTransactions is finished.";
+
+    }// Click_btn_GetNetworkScannerTransactions
 
     private void ReleaseObject(object obj)
     {

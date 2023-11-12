@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using System.IO;
 using System.Collections;
+using InvestmentManagement.Services;
 
 namespace InvestmentManagement
 {
@@ -32,6 +33,7 @@ namespace InvestmentManagement
     ExtractDataFromCSV extractDataFromCSV = new ExtractDataFromCSV();
     List<string> csvFolders = new List<string>();
     string csvMergeFileName = "Alle Transaktionen.csv";
+    MongoDbService mongoDbService = new MongoDbService();
 
     public void MergeFiles(string _documentFolderPath)
     {
@@ -56,12 +58,15 @@ namespace InvestmentManagement
       GoThroughEachNetworkTokenTxnFolderExtract(FindFolders(_documentFolderPath, "Token Transaktionen"));
       GoThroughEachCexFolderExtract(FindFolders(_documentFolderPath, "Käufe-Verkäufe"));
       //extractDataFromCSV.ExtractNetworkTokenTxnData(@"C:\Projekte\Unterlagen\Cryptos\Dokumente\BNB Network\export-address-token-0x2c8ac232c76498fe46811879d20ce34b92983a9e.csv", ExtractDataFromCSV.Network.Bsc);
+
       InsertNetworkTxnData(extractDataFromCSV.networkTxnInfoList);
       InsertNetworkTokenTxnData(extractDataFromCSV.networkTokenTxnInfoList);
       //GoThroughEachFolderExtract(GetFoldersUnderCryptoDocumentPath(_documentFolderPath));
       //extractDataFromCSV.ExtractData(@"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Dokumente\Kucoin\HISTORY_634c1b3bed20b6000741be35.csv", ExtractDataFromCSV.Cex.Kucoin);
       // FormatData(ref extractDataFromCSV.cexBuySellInfoList); 
        InsertCexBuySellData(extractDataFromCSV.cexBuySellInfoList);
+
+     
     }
 
 
@@ -218,26 +223,81 @@ namespace InvestmentManagement
         extractDataFromCSV.ExtractNetworkTokenTxnData(_dirs[i] + "\\" + csvMergeFileName, network);
       }
     }
-    static void MergeFilesToOne(string[] _fileNames, string _outputFileName)
+    static void MergeFilesToOne(string[] filePaths, string outputFilePath)
+    {
+      if (filePaths.Length > 0)
+      {
+        if (filePaths[0].Contains("Network"))
+        {
+          MergeNetworkFiles(filePaths, outputFilePath);
+        }
+        else
+        {
+          MergeCexFiles(filePaths, outputFilePath);
+        }
+      }
+
+    }
+    static void MergeNetworkFiles(string[] filePaths, string outputFilePath)
     {
       // Initialize a HashSet to hold the unique lines of all CSV files
-      HashSet<string> uniqueLines = new HashSet<string>();
+      HashSet<string> uniqueTxhash = new HashSet<string>();
+
+
+      // Initialize a HashSet to hold the unique lines of all CSV files
+      List<string> uniqueLines = new List<string>();
 
       // Iterate over the file names and read their lines into the HashSet
-      foreach (string fileName in _fileNames)
+      foreach (string fileName in filePaths)
       {
         // Read all the lines of the current file and add them to the HashSet
         string[] lines = File.ReadAllLines(fileName);
         foreach (string line in lines)
         {
-          uniqueLines.Add(line);
+          var lineSplited = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+          if (lineSplited.Length < 2)
+          {
+            lineSplited = line.Split(new string[] { "," }, StringSplitOptions.None);
+          }
+
+          if (uniqueTxhash.Add(lineSplited[0] + lineSplited[4] + lineSplited[5])) // Adds the line to the HashSet, if it's not already present
+          {
+            uniqueTxhash.Add(lineSplited[0] + lineSplited[4] + lineSplited[5]);
+            uniqueLines.Add(line);
+          }
         }
       }
 
       // Write the unique lines of the merged CSV file to the output file
-      File.WriteAllLines(_outputFileName, uniqueLines);
+      File.WriteAllLines(outputFilePath, uniqueLines);
 
     }
+
+    static void MergeCexFiles(string[] filePaths, string outputFilePath)
+    {
+
+      // Initialize a HashSet to hold the unique lines of all CSV files
+      HashSet<string> uniqueLines = new HashSet<string>();
+
+      // Iterate over the file names and read their lines into the HashSet
+      foreach (string fileName in filePaths)
+      {
+        // Read all the lines of the current file and add them to the HashSet
+        string[] lines = File.ReadAllLines(fileName);
+        foreach (string line in lines)
+        {
+          if (uniqueLines.Add(line)) // Adds the line to the HashSet, if it's not already present
+          {
+            uniqueLines.Add(line);
+          }
+        }
+      }
+
+      // Write the unique lines of the merged CSV file to the output file
+      File.WriteAllLines(outputFilePath, uniqueLines);
+
+    }
+
     void InsertCexBuySellData(List<CexBuySellInfo> _buySellInfoList)
     {
       Console.WriteLine("-------------InsertBuySellData-------------");
@@ -484,6 +544,14 @@ namespace InvestmentManagement
     void CollectPortfolioDataFromNetworkTxns(List<NetworkTxnInfo> _networkTxnInfoList)
     {
 
+    }
+
+    public void UploadTradeInfosToMongoDb()
+    {
+
+        mongoDbService.LoadListToDb<NetworkTxnInfo>(extractDataFromCSV.networkTxnInfoList, nameof(NetworkTxnInfo));
+        mongoDbService.LoadListToDb<NetworkTokenTxnInfo>(extractDataFromCSV.networkTokenTxnInfoList, nameof(NetworkTokenTxnInfo));
+        mongoDbService.LoadListToDb<CexBuySellInfo>(extractDataFromCSV.cexBuySellInfoList, nameof(CexBuySellInfo));
     }
   }//class CollectData
 }

@@ -29,6 +29,7 @@ namespace InvestmentManagement
     List<DepotInventory> depotInventoryList = new List<DepotInventory>();
     List<MyWallet> myWalletsList = new List<MyWallet>();
     List<CryptoRegisterData> cryptoRegisterDataList = new List<CryptoRegisterData>();
+    public List<string> txhashToIgnoreList = new List<string>();
 
 
     public void CreateCryptoRegister()
@@ -37,7 +38,7 @@ namespace InvestmentManagement
 
       GoThroughNetworkTxnData();
       GoThroughNetworkTokenTxnData();
-      GoThroughCexBuySellData();
+     // GoThroughCexBuySellData();
       WriteNewCryptoRegisterDataIntoExcel();
       WritePortfolioIntoExcel();
       Console.WriteLine("CreateCryptoRegister Done");
@@ -146,6 +147,7 @@ namespace InvestmentManagement
 
       var cellOfDate = HandleExcel.GetCellByName("Datum", worksheet);
       var cellOfNetwork = HandleExcel.GetCellByName("Network", worksheet);
+      var cellOfTxhash = HandleExcel.GetCellByName("Txhash", worksheet);
       var cellOfNetworkCurrency = HandleExcel.GetCellByName("Network Currency", worksheet);
       var cellOfFrom = HandleExcel.GetCellByName("From", worksheet);
       var cellOfTo = HandleExcel.GetCellByName("To", worksheet);
@@ -163,12 +165,13 @@ namespace InvestmentManagement
 
       DateTime date = new DateTime();
 
-      while (HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet).Ticks > 0 )
+      while (HandleExcel.GetTextFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet).Length > 0) //HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet).Ticks > 0 )
       {
-        date = HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet);
+        date = DateTime.Parse(HandleExcel.GetTextFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet));//HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet);
 
         string network = HandleExcel.GetTextFromCell(cellOfNetwork.cellLine + i, cellOfNetwork.cellColum, worksheet);
         string networkCurrency = HandleExcel.GetTextFromCell(cellOfNetworkCurrency.cellLine + i, cellOfNetworkCurrency.cellColum, worksheet);
+        string txhash = HandleExcel.GetTextFromCell(cellOfTxhash.cellLine + i, cellOfTxhash.cellColum, worksheet);
         string status = HandleExcel.GetTextFromCell(cellOfStatus.cellLine + i, cellOfStatus.cellColum, worksheet);
         string method = HandleExcel.GetTextFromCell(cellOfMethod.cellLine + i, cellOfMethod.cellColum, worksheet);
         string walletFrom = HandleExcel.GetTextFromCell(cellOfFrom.cellLine + i, cellOfFrom.cellColum, worksheet);
@@ -184,7 +187,19 @@ namespace InvestmentManagement
           Network = network
         };
 
+        //if (method.Equals("Transfer"))
+        //{
+        //  txhashToIgnoreList.Add(txhash);
+        //}
+
         decimal amount = 0;
+
+        if (networkCurrency == "ETH")
+        {
+          Console.WriteLine("test");
+        }
+      
+
         if (!IsCoinInList(network, networkCurrency, "", true))
         {
           if(!IsCoinInExcelRegister(network, networkCurrency, "", true))
@@ -198,15 +213,14 @@ namespace InvestmentManagement
 
             if (coinIndexPortfolio != -1)
             {
-              
 
-              if (valueIn > 0)
+              if (valueIn > 0)// && !method.Equals("Transfer"))
               {
                 amount = valueIn;
                 dataInfo.DepotName = GetMyWalletName(walletTo);
 
               }
-              else if (valueOut > 0 )
+              else if (valueOut > 0)//  && !method.Equals("Transfer"))
               {
                 if (status.Contains("Error"))
                 {
@@ -241,13 +255,18 @@ namespace InvestmentManagement
           if (coinIndexPortfolio != -1)
           {
 
-            if (valueIn > 0)
+
+            if (valueIn == 0.2988m)
+            {
+              Console.WriteLine("test");
+            }
+            if (valueIn > 0)//  && !method.Equals("Transfer"))
             {
               amount = valueIn; 
               dataInfo.DepotName = GetMyWalletName(walletTo);
 
             }
-            else if (valueOut > 0)
+            else if (valueOut > 0)//  && !method.Equals("Transfer"))
             {
               if (!(status is null))
               {
@@ -430,8 +449,8 @@ namespace InvestmentManagement
         {
           if (_isNetworkCoin)
           {
-            if (cryptoRegisterDataList[i].Network.ToLower().Equals(_name.ToLower())
-                && cryptoRegisterDataList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
+            if (cryptoRegisterDataList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
+                //&& cryptoRegisterDataList[i].Network.ToLower().Equals(_name.ToLower()))
             {
               isCoinInRegister = true;
               index = i;
@@ -680,11 +699,13 @@ namespace InvestmentManagement
           {
             if (portfolioList[i].Symbol.ToLower().Equals(_symbol.ToLower()))
             {
-              if (portfolioList[i].Network.ToLower().Equals(_name.ToLower()))
-              {
-                index = i;
-                break;
-              }
+              //if (portfolioList[i].Network.ToLower().Equals(_name.ToLower()))
+              //{
+              //  index = i;
+              //  break;
+              //}
+              index = i;
+              break;
             }
           }
           else
@@ -727,6 +748,7 @@ namespace InvestmentManagement
       var cellOfDate = HandleExcel.GetCellByName("Datum", worksheet);
       var cellOfNetwork = HandleExcel.GetCellByName("Network", worksheet);
       var cellOfNetworkCurrency = HandleExcel.GetCellByName("Network Currency", worksheet);
+      var cellOfTxhash = HandleExcel.GetCellByName("Txhash", worksheet);
       var cellOfFrom = HandleExcel.GetCellByName("From", worksheet);
       var cellOfTo = HandleExcel.GetCellByName("To", worksheet);
       var cellOfTokenAmount = HandleExcel.GetCellByName("Token Amount", worksheet);
@@ -738,13 +760,14 @@ namespace InvestmentManagement
 
       DateTime date = new DateTime();
 
-      while (HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet).Ticks > 0)
+      while (HandleExcel.GetTextFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet).Length > 0) //HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet).Ticks > 0 )
       {
 
-        date = HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet);
+        date = DateTime.Parse(HandleExcel.GetTextFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet));//HandleExcel.GetDateFromCell(cellOfDate.cellLine + i, cellOfDate.cellColum, worksheet);
 
         string network = HandleExcel.GetTextFromCell(cellOfNetwork.cellLine + i, cellOfNetwork.cellColum, worksheet);
         string networkCurrency = HandleExcel.GetTextFromCell(cellOfNetworkCurrency.cellLine + i, cellOfNetworkCurrency.cellColum, worksheet);
+        string txhash = HandleExcel.GetTextFromCell(cellOfTxhash.cellLine + i, cellOfTxhash.cellColum, worksheet);
         string walletFrom = HandleExcel.GetTextFromCell(cellOfFrom.cellLine + i, cellOfFrom.cellColum, worksheet);
         string walletTo = HandleExcel.GetTextFromCell(cellOfTo.cellLine + i, cellOfTo.cellColum, worksheet);
         decimal tokenAmount = (decimal) HandleExcel.GetDecimalFromCell(cellOfTokenAmount.cellLine + i, cellOfTokenAmount.cellColum, worksheet);
@@ -754,6 +777,12 @@ namespace InvestmentManagement
 
         decimal amount = 0;
 
+
+        //if (txhashToIgnoreList.Contains(txhash))
+        //{
+        //  i++;
+        //  continue;
+        //}
 
         DataInfo dataInfo = new DataInfo
         {
@@ -781,6 +810,11 @@ namespace InvestmentManagement
           dataInfo.DepotName = GetMyWalletName(walletFrom);
         }
 
+
+        if (true)
+        {
+
+        }
 
         if (!IsCoinInList(tokenName, tokenSymbol, contractAddress, false))
         {
