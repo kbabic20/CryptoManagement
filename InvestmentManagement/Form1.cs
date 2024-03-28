@@ -20,7 +20,7 @@ namespace InvestmentManagement
 
     WebCrawler webCrawler;
     HandleExcel handleExcel;
-    CoinGeckoAPI coinGeckoAPI;
+    CoinGeckoApiService coinGeckoAPI;
     CryptoKauf CryptoKauf;
     string excelFilePath = @"C:\Users\Kasim\OneDrive - rfh-campus.de\Finanzen\Investment\Cryptos\Crypto Investment_aktuell.xlsx"; //@"C:\Projekte\Unterlagen\Cryptos\Dokumente\Crypto Investment_aktuell.xlsx"; //
     //string excelFilePath = @"C:\Projekte\Unterlagen\Cryptos\Dokumente\Crypto Investment_aktuell.xlsx"; //
@@ -57,6 +57,24 @@ namespace InvestmentManagement
 
       txt_StatusLeiste.Text = "";
       handleExcel.RefreshCryptoPrices(); // coinGeckoAPI.GetCurrentPrice("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur");
+
+
+      txt_StatusLeiste.Text = "Refresh is finished.";
+
+
+    }// Click_RefreshStockPrice
+
+    private async void Click_RefreshCryptoPrice2(object sender, System.EventArgs e)
+    {
+
+      //CoinGeckoApiService coinGeckoApiService = new CoinGeckoApiService();
+      //List<CoinGeckoApiService.CoinsListPrice> coinsListPrice = new List<CoinGeckoApiService.CoinsListPrice>();
+
+      txt_StatusLeiste.Text = "";
+      //await coinGeckoApiService.GetCurrentPriceAsync(coinsListPrice, "eur"); ; // coinGeckoAPI.GetCurrentPrice("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur");
+
+      PortfolioManagement portfolioManagement = new PortfolioManagement();
+      await portfolioManagement.GetCurrPrice();
 
 
       txt_StatusLeiste.Text = "Refresh is finished.";
@@ -109,6 +127,24 @@ namespace InvestmentManagement
       txt_StatusLeiste.Text = "GetNetworkScannerTransactions is finished.";
 
     }// Click_btn_GetNetworkScannerTransactions
+    private async void Click_btn_GetDexscreenerPriceOfPairs(object sender, System.EventArgs e)
+    {
+      txt_StatusLeiste.Text = "";
+      DexscreenerApiService dexscreenerApiService = new DexscreenerApiService();
+      List<string> pairs = new List<string>();
+      string chainName = "solana";
+      pairs.Add("42ZShnaCDcxdZJoemuhwe7H6BhX5pY4s2SiMCMP6LjgC");
+      await dexscreenerApiService.GetUsdPricePerPair(chainName, pairs);
+      txt_StatusLeiste.Text = "GetDexscreenerPriceOfPairs is finished.";
+
+    }// Click_btn_GetDexscreenerPriceOfPairs
+    private async void Click_btn_Test(object sender, System.EventArgs e)
+    {
+      txt_StatusLeiste.Text = "";
+      BitqueryApiService bitqueryApiService = new BitqueryApiService();
+      await bitqueryApiService.SendQuery();
+
+    }// Click_btn_Test
 
     private void ReleaseObject(object obj)
     {

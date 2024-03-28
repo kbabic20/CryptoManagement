@@ -39,6 +39,8 @@ namespace InvestmentManagement
       this.btn_MergeFlies = new System.Windows.Forms.Button();
       this.btn_CreateCryptoRegister = new System.Windows.Forms.Button();
       this.btn_GetNetworkScannerTransactions = new System.Windows.Forms.Button();
+      this.btn_GetDexscreenerPriceOfPairs = new System.Windows.Forms.Button();
+      this.btn_Test = new System.Windows.Forms.Button();
       this.SuspendLayout();
       // 
       // btn_AktualisiereAktienkurse
@@ -66,7 +68,7 @@ namespace InvestmentManagement
       this.btn_AktualisiereCryptosPreise.TabIndex = 2;
       this.btn_AktualisiereCryptosPreise.Text = "Aktualisiere Cryptos Preise";
       this.btn_AktualisiereCryptosPreise.UseVisualStyleBackColor = true;
-      this.btn_AktualisiereCryptosPreise.Click += new System.EventHandler(this.Click_RefreshCryptoPrice);
+      this.btn_AktualisiereCryptosPreise.Click += new System.EventHandler(this.Click_RefreshCryptoPrice2);
       // 
       // btn_BerKaufCryptos
       // 
@@ -134,11 +136,33 @@ namespace InvestmentManagement
       this.btn_GetNetworkScannerTransactions.UseVisualStyleBackColor = true;
       this.btn_GetNetworkScannerTransactions.Click += new System.EventHandler(this.Click_btn_GetNetworkScannerTransactions);
       // 
+      // btn_GetDexscreenerPriceOfPairs
+      // 
+      this.btn_GetDexscreenerPriceOfPairs.Location = new System.Drawing.Point(740, 96);
+      this.btn_GetDexscreenerPriceOfPairs.Name = "btn_GetDexscreenerPriceOfPairs";
+      this.btn_GetDexscreenerPriceOfPairs.Size = new System.Drawing.Size(160, 44);
+      this.btn_GetDexscreenerPriceOfPairs.TabIndex = 10;
+      this.btn_GetDexscreenerPriceOfPairs.Text = "Get Dexscreener Price of Pairs";
+      this.btn_GetDexscreenerPriceOfPairs.UseVisualStyleBackColor = true;
+      this.btn_GetDexscreenerPriceOfPairs.Click += new System.EventHandler(this.Click_btn_GetDexscreenerPriceOfPairs);
+      // 
+      // btn_Test
+      // 
+      this.btn_Test.Location = new System.Drawing.Point(740, 173);
+      this.btn_Test.Name = "btn_Test";
+      this.btn_Test.Size = new System.Drawing.Size(160, 44);
+      this.btn_Test.TabIndex = 11;
+      this.btn_Test.Text = "Test";
+      this.btn_Test.UseVisualStyleBackColor = true;
+      this.btn_Test.Click += new System.EventHandler(this.Click_btn_Test);
+      // 
       // Form1
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(800, 450);
+      this.ClientSize = new System.Drawing.Size(1042, 450);
+      this.Controls.Add(this.btn_Test);
+      this.Controls.Add(this.btn_GetDexscreenerPriceOfPairs);
       this.Controls.Add(this.btn_GetNetworkScannerTransactions);
       this.Controls.Add(this.btn_CreateCryptoRegister);
       this.Controls.Add(this.btn_MergeFlies);
@@ -168,6 +192,8 @@ namespace InvestmentManagement
     private System.Windows.Forms.Button btn_MergeFlies;
     private System.Windows.Forms.Button btn_CreateCryptoRegister;
     protected System.Windows.Forms.Button btn_GetNetworkScannerTransactions;
+    protected System.Windows.Forms.Button btn_GetDexscreenerPriceOfPairs;
+    protected System.Windows.Forms.Button btn_Test;
   }
 }
 

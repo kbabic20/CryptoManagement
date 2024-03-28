@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace InvestmentManagement.Services
 {
-  public abstract class BaseBlockScanService
+  public abstract class BaseBlockScanService : BaseRestApiService
   {
-    public class EtherScanApiResponse<T>
-    {
-      public List<T> result { get; set; }
-    }
+    //public class EtherScanApiResponse<T>
+    //{
+    //  public List<T> result { get; set; }
+    //}
      string baseUrl;
      string apiKey;
     string walletAddress;
@@ -61,39 +61,39 @@ namespace InvestmentManagement.Services
       string url = $"{BaseUrl}?module=account&action=txlist&address={WalletAddress}&startblock=0&endblock=99999999&page=1&offset=10000&sort=asc&apikey={ApiKey}";
 
 
-      transactionList = await GetApiResultsAsync<BlockScanModel.Txlist>(url);
+      transactionList = await GetApiResultsAsListAsync<BlockScanModel.Txlist>(url);
 
       return transactionList;
     }
 
-    async Task<List<T>> GetApiResultsAsync<T>(string url)
-    {
-      List<T> transactionList = new List<T>();
+    //async Task<List<T>> GetApiResultsAsync<T>(string url)
+    //{
+    //  List<T> transactionList = new List<T>();
 
-      using (HttpClient client = new HttpClient())
-      {
+    //  using (HttpClient client = new HttpClient())
+    //  {
 
-        HttpResponseMessage response = await client.GetAsync(url);
+    //    HttpResponseMessage response = await client.GetAsync(url);
 
-        if (response.IsSuccessStatusCode)
-        {
-          string responseContent = response.Content.ReadAsStringAsync().Result;
+    //    if (response.IsSuccessStatusCode)
+    //    {
+    //      string responseContent = response.Content.ReadAsStringAsync().Result;
 
-          // Deserialisierung der Antwort in die Liste von Txlist-Objekten
-          var result = JsonConvert.DeserializeObject<EtherScanApiResponse<T>>(responseContent);
-          if (result != null && result.result != null)
-          {
-            transactionList = result.result;
-          }
-        }
-        else
-        {
-          Console.WriteLine("Fehler beim Abrufen der Daten. Statuscode: " + response.StatusCode);
-        }
-      }
+    //      // Deserialisierung der Antwort in die Liste von Txlist-Objekten
+    //      var result = JsonConvert.DeserializeObject<EtherScanApiResponse<T>>(responseContent);
+    //      if (result != null && result.result != null)
+    //      {
+    //        transactionList = result.result;
+    //      }
+    //    }
+    //    else
+    //    {
+    //      Console.WriteLine("Fehler beim Abrufen der Daten. Statuscode: " + response.StatusCode);
+    //    }
+    //  }
 
-      return transactionList;
-    }
+    //  return transactionList;
+    //}
 
     NetworkTxnInfo ConvertTxlistToNetworkTxnInfo(BlockScanModel.Txlist transaction)
     {
@@ -186,7 +186,7 @@ namespace InvestmentManagement.Services
       List<BlockScanModel.Tokentx> transactionList = new List<BlockScanModel.Tokentx>();
       string url = $"{BaseUrl}?module=account&action=tokentx&address={WalletAddress}&startblock=0&endblock=99999999&page=1&offset=10000&sort=asc&apikey={ApiKey}";
 
-      transactionList = await GetApiResultsAsync<BlockScanModel.Tokentx>(url);
+      transactionList = await GetApiResultsAsListAsync<BlockScanModel.Tokentx>(url);
 
       return transactionList;
     }

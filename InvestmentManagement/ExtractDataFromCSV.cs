@@ -33,7 +33,8 @@ namespace InvestmentManagement
       Avalanche,
       Solana,
       Bitcoin,
-      Moonbeam
+      Moonbeam,
+      Aurora
     }
     public enum ExtractFormat
     {
@@ -43,11 +44,12 @@ namespace InvestmentManagement
       Fantom = 1,
       Arbitrum = 1,
       Optimism = 1,
-      Tron,
       Avalanche = 1,
+      Moonbeam = 1,
+      Tron,
       Solana,
       Bitcoin,
-      Moonbeam = 1,
+      Aurora
     }
 
     enum Spalte
@@ -632,35 +634,81 @@ namespace InvestmentManagement
             }
 
             // Skip first line
-            if (values[0].Contains("Txhash"))
+            if (values[0].ToLower().Contains("txhash"))
             {
               //networkCurrency = values[7].Substring(9, values[7].Length - 2 - 8);
               continue;
             }
             networkCurrency = GetNetworkCurrencey(_network);
 
-            NetworkTxnInfo networkInfo = new NetworkTxnInfo
+            switch (((int)Enum.Parse(typeof(ExtractDataFromCSV.ExtractFormat), _network.ToString())))
             {
-              Network = _network.ToString(),
-              NetworkCurrency = networkCurrency,
-              Txhash = values[(int)Spalte.A],
-              Blockno = values[(int)Spalte.B],
-              UnixTimestamp = values[(int)Spalte.C],
-              DateTime = values[(int)Spalte.D],
-              From = values[(int)Spalte.E],
-              To = values[(int)Spalte.F],
-              ContractAddress = values[(int)Spalte.G],
-              ValueIn = values[(int)Spalte.H],
-              ValueOut = values[(int)Spalte.I],
-              TxnFeeNative = values[(int)Spalte.K],
-              TxnFeeUsd = values[(int)Spalte.L],
-              HistoricalPrice = values[(int)Spalte.M],
-              Status = values[(int)Spalte.N],
-              ErrCode = values[(int)Spalte.O],
-              Method = values[(int)Spalte.P],
-            };
+              case (int)ExtractFormat.Aurora:
+                {
 
-            networkTxnInfoList.Add(networkInfo);
+                  NetworkTxnInfo networkInfo = new NetworkTxnInfo
+                  {
+                    Network = _network.ToString(),
+                    NetworkCurrency = networkCurrency,
+                    Txhash = values[(int)Spalte.A],
+                    Blockno = values[(int)Spalte.B],
+                    DateTime = values[(int)Spalte.C].Replace(".000000Z", ""),
+                    From = values[(int)Spalte.D],
+                    To = values[(int)Spalte.E],
+                    ContractAddress = values[(int)Spalte.F],
+                    Status = values[(int)Spalte.J],
+                    ErrCode = values[(int)Spalte.K],
+                  };
+
+                  string type = values[(int)Spalte.G];
+                  double value = double.Parse(values[(int)Spalte.H]) / Math.Pow(10, 18);
+                  if (type.Equals("OUT"))
+                  {
+                    networkInfo.ValueOut = value.ToString();
+                  }
+                  else
+                  {
+                    networkInfo.ValueIn = value.ToString();
+                  }
+                    
+                  networkTxnInfoList.Add(networkInfo);
+
+
+                  decimal fee = decimal.Parse(values[(int)Spalte.I]) /(decimal) Math.Pow(10, 18);
+                  networkInfo.TxnFeeNative = fee.ToString();
+                }
+                
+                break;
+              default:
+                {
+                  NetworkTxnInfo networkInfo = new NetworkTxnInfo
+                  {
+                    Network = _network.ToString(),
+                    NetworkCurrency = networkCurrency,
+                    Txhash = values[(int)Spalte.A],
+                    Blockno = values[(int)Spalte.B],
+                    UnixTimestamp = values[(int)Spalte.C],
+                    DateTime = values[(int)Spalte.D],
+                    From = values[(int)Spalte.E],
+                    To = values[(int)Spalte.F],
+                    ContractAddress = values[(int)Spalte.G],
+                    ValueIn = values[(int)Spalte.H],
+                    ValueOut = values[(int)Spalte.I],
+                    TxnFeeNative = values[(int)Spalte.K],
+                    TxnFeeUsd = values[(int)Spalte.L],
+                    HistoricalPrice = values[(int)Spalte.M],
+                    Status = values[(int)Spalte.N],
+                    ErrCode = values[(int)Spalte.O],
+                    Method = values[(int)Spalte.P],
+                  };
+
+                  networkTxnInfoList.Add(networkInfo);
+                }
+                
+                break;
+            }
+
+
           }
         }
       }
@@ -710,6 +758,10 @@ namespace InvestmentManagement
         case Network.Moonbeam:
           networkCurrency = "GLMR";
           break;
+        case Network.Aurora:
+
+          networkCurrency = "ETH";
+          break;
         default:
           break;
       }
@@ -736,6 +788,10 @@ namespace InvestmentManagement
           string networkCurrency = "N/A";
           //line = line.Replace("\"", "");
           string[] values = line.Split(new string[] { ",\"" }, StringSplitOptions.None);
+          if (values.Length <=1)
+          {
+            values = line.Split(new string[] { "," }, StringSplitOptions.None);
+          }
           for (int i = 0; i < values.Length; i++)
           {
             values[i] = values[i].Replace(",", "");
@@ -744,7 +800,7 @@ namespace InvestmentManagement
           }
 
           // Skip first line
-          if (values[0].Contains("Txhash"))
+          if (values[0].ToLower().Contains("txhash"))
           {
             continue;
           }
@@ -799,6 +855,28 @@ namespace InvestmentManagement
 
                 networkTokenTxnInfoList.Add(networkTokentxnInfo);
               }
+
+              break;
+
+            case (int)ExtractFormat.Aurora:
+              {
+                NetworkTokenTxnInfo networkTokentxnInfo = new NetworkTokenTxnInfo
+                {
+                  Network = _network.ToString(),
+                  NetworkCurrency = networkCurrency,
+                  Txhash = values[(int)Spalte.A],
+                  Blockno = values[(int)Spalte.B],
+                  DateTime = values[(int)Spalte.C].Replace(".000000Z", ""),
+                  From = values[(int)Spalte.D],
+                  To = values[(int)Spalte.E],
+                  ContractAddress = values[(int)Spalte.F],
+                  TokenSymbol = values[(int)Spalte.H]
+                };
+                double amount = double.Parse(values[(int)Spalte.J]) / Math.Pow(10, int.Parse(values[(int)Spalte.I]));
+                networkTokentxnInfo.TokenAmount = amount.ToString();
+                networkTokenTxnInfoList.Add(networkTokentxnInfo);
+              }
+
 
               break;
 

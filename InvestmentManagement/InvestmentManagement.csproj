@@ -81,6 +81,9 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp, Version=110.2.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.110.2.0\lib\net471\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="SharpCompress, Version=0.30.1.0, Culture=neutral, PublicKeyToken=afb0a02973931d96, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpCompress.0.30.1\lib\net461\SharpCompress.dll</HintPath>
     </Reference>
@@ -164,6 +167,7 @@
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -177,12 +181,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\CoinGeckoRestResponseModel.cs" />
+    <Compile Include="Models\CoinmarketcapRestResponseModel.cs" />
+    <Compile Include="Models\DexscreenerRestResponseModel.cs" />
     <Compile Include="Services\ArbitrumScanService.cs" />
     <Compile Include="Models\BlockScanModel.cs" />
     <Compile Include="Services\AvalancheScanService.cs" />
     <Compile Include="Services\BaseBlockScanService.cs" />
+    <Compile Include="Services\BaseRestApiService.cs" />
+    <Compile Include="Services\BitqueryApiService.cs" />
     <Compile Include="Services\BlockScanService.cs" />
     <Compile Include="Services\BscScanService.cs" />
+    <Compile Include="Services\CoinmarketcapApiService.cs" />
+    <Compile Include="Services\DexscreenerApiService.cs" />
     <Compile Include="Services\EthereumScanService.cs" />
     <Compile Include="Services\FantomScanService.cs" />
     <Compile Include="Services\MongoDbService.cs" />
@@ -191,7 +202,7 @@
     <Compile Include="Services\OptimismScanService.cs" />
     <Compile Include="Services\PolygonScanService.cs" />
     <Compile Include="Models\TradeInfo.cs" />
-    <Compile Include="CoinGeckoAPI.cs" />
+    <Compile Include="Services\CoinGeckoApiService.cs" />
     <Compile Include="CollectData.cs" />
     <Compile Include="CryptoBuyInfos.cs" />
     <Compile Include="CryptoKauf.cs" />

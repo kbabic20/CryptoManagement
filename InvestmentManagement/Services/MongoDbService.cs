@@ -6,6 +6,9 @@ using MongoDB.Driver;
 using CsvHelper;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace InvestmentManagement.Services
 {
@@ -61,9 +64,30 @@ namespace InvestmentManagement.Services
       //  var records = csv.GetRecords<NetworkTxnInfo>();
       //  transactions = records.ToList();
       //}
-      var collection = database.GetCollection<T>(collectionName);
+      var collection = database.GetCollection<BsonDocument>(collectionName);// database.GetCollection<T>(collectionName);
 
-      collection.InsertMany(list);
+      //collection.InsertMany(list);
+
+      var models = new List<WriteModel<BsonDocument>>();
+      foreach (var item in list)
+      {
+        var doc = ToBsonDocument(item);
+
+        // Erstelle einen Filter, der jedes Feld in doc berücksichtigt
+        var filters = new List<FilterDefinition<BsonDocument>>();
+        foreach (var element in doc)
+        {
+          filters.Add(Builders<BsonDocument>.Filter.Eq(element.Name, element.Value));
+        }
+        var filter = Builders<BsonDocument>.Filter.And(filters);
+
+        var update = new BsonDocument("$set", doc);
+        var updateOneModel = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
+        models.Add(updateOneModel);
+
+      }
+
+      collection.BulkWrite(models);
 
       Console.WriteLine("CSV data imported to MongoDB.");
     }
@@ -95,6 +119,19 @@ namespace InvestmentManagement.Services
       string collectionName = filePath.Replace(rootPath + "\\", "").Replace("\\", "_").Replace(" ", "").Replace("-", "").Replace(".csv", "");
       return collectionName;
     }
+    public static BsonDocument ToBsonDocument<T>(T item)
+    {
+      var document = new BsonDocument();
+      foreach (PropertyInfo prop in typeof(T).GetProperties())
+      {
+        var value = prop.GetValue(item, null);
+        if (value != null)
+        {
+          document[prop.Name] = BsonValue.Create(value);
+        }
+      }
+      return document;
+    }
 
     static void InsertCsvDataToMongoDB(string file, IMongoCollection<BsonDocument> collection)
     {
@@ -109,14 +146,68 @@ namespace InvestmentManagement.Services
           var records = csv.GetRecords<dynamic>().ToList();
           List<BsonDocument> bsonDocs = new List<BsonDocument>();
 
+          var models = new List<WriteModel<BsonDocument>>();
+
           foreach (var record in records)
           {
-            var document = record.ToBsonDocument();
-            bsonDocs.Add(document);
+            var doc = ToBsonDocument(record);
+
+            // Erstelle einen Filter, der jedes Feld in doc berücksichtigt
+            var filters = new List<FilterDefinition<BsonDocument>>();
+            foreach (var element in doc)
+            {
+              filters.Add(Builders<BsonDocument>.Filter.Eq(element.Name, element.Value));
+            }
+            var filter = Builders<BsonDocument>.Filter.And(filters);
+
+            var update = new BsonDocument("$set", doc);
+            var updateOneModel = new UpdateOneModel<BsonDocument>(filter, update) { IsUpsert = true };
+            models.Add(updateOneModel);
           }
 
-          collection.InsertMany(bsonDocs);
+          //collection.InsertMany(bsonDocs);
+
+          try
+          {
+            var result = collection.BulkWrite(models);
+            Console.WriteLine($"{result.InsertedCount} Dokumente wurden erfolgreich eingefügt.");
+          }
+          catch (MongoBulkWriteException<BsonDocument> ex)
+          {
+            foreach (var error in ex.WriteErrors)
+            {
+              if (error.Category == ServerErrorCategory.DuplicateKey)
+              {
+                Console.WriteLine($"Duplikatschlüssel-Fehler für Dokument: {models[error.Index].ToBsonDocument()} - {error.Message}");
+              }
+            }
+          }
         }
+      }
+    }
+
+    static string GenerateChecksum<T>(T item)
+    {
+      StringBuilder dataToHash = new StringBuilder();
+      foreach (PropertyInfo prop in typeof(T).GetProperties())
+      {
+        var value = prop.GetValue(item, null);
+        if (value != null)
+        {
+          dataToHash.Append(value.ToString());
+        }
+      }
+
+      using (SHA256 sha256Hash = SHA256.Create())
+      {
+        byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(dataToHash.ToString()));
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < bytes.Length; i++)
+        {
+          builder.Append(bytes[i].ToString("x2"));
+        }
+        return builder.ToString();
       }
     }
   }

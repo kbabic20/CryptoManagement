@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
+using InvestmentManagement.Services;
 
 namespace InvestmentManagement
 {
@@ -39,7 +40,7 @@ namespace InvestmentManagement
    static List<CellNames> cellNames = new List<CellNames>();
 
     WebCrawler webCrawler;
-    CoinGeckoAPI coinGeckoAPI;
+    CoinGeckoApiService coinGeckoAPI;
 
     
 
@@ -75,7 +76,7 @@ namespace InvestmentManagement
       OpenExcelFile(_path);
 
       webCrawler = new WebCrawler();
-      this.coinGeckoAPI = new CoinGeckoAPI();
+      this.coinGeckoAPI = new CoinGeckoApiService();
     }
 
     void OpenExcelFile(string _path)
